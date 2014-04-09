@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour {
 	private float screenWidth = 0f,
 				screenHeight = 0f;
 	
-	private Camera playerCam;
+	public Camera PlayerCam;
 	
 	private GameController _gameController;
 	
@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour {
 		screenHeight = Screen.height;
 		unitsList = new List<Entity>();
 		deadUnitsList = new List<Entity>();
-		playerCam = this.GetComponentInChildren<Camera>();
+		PlayerCam = this.GetComponentInChildren<Camera>();
 		_gameController = GameObject.FindGameObjectWithTag("GameController").GetComponent<GameController>();
 		SelectedUnits = new List<Entity>();		
 
@@ -202,7 +202,7 @@ public class PlayerController : MonoBehaviour {
 					
 	private void moveUnit() {
 		if (SelectedUnits.Count > 0) {			
-			Ray mouseRay = playerCam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f));
+			Ray mouseRay = PlayerCam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f));
 			RaycastHit[] hits = Physics.RaycastAll(mouseRay);
 			foreach (RaycastHit hit in hits) {
 				if (hit.collider.GetType() == typeof(TerrainCollider)) {
@@ -275,7 +275,7 @@ public class PlayerController : MonoBehaviour {
 				bool unitFound = false;
 				foreach (Entity unit in unitsList) {
 				    //Convert the world position of the unit to a screen position and then to a GUI point
-				    Vector3 _screenPos = playerCam.WorldToScreenPoint(unit.transform.position);
+				    Vector3 _screenPos = PlayerCam.WorldToScreenPoint(unit.transform.position);
 				    Vector2 _screenPoint = new Vector2(_screenPos.x, screenHeight - _screenPos.y);
 				    //Ensure that any units not within the marquee are currently unselected
 				    if (!marqueeRect.Contains(_screenPoint) || !backupRect.Contains(_screenPoint)) {
@@ -295,7 +295,7 @@ public class PlayerController : MonoBehaviour {
 				if (!unitFound) {
 					foreach (Entity enemy in _gameController.enemies) {
 					    //Convert the world position of the unit to a screen position and then to a GUI point
-					    Vector3 _screenPos = playerCam.WorldToScreenPoint(enemy.transform.position);
+					    Vector3 _screenPos = PlayerCam.WorldToScreenPoint(enemy.transform.position);
 					    Vector2 _screenPoint = new Vector2(_screenPos.x, screenHeight - _screenPos.y);
 					    //Ensure that any units not within the marquee are currently unselected
 					    if (!marqueeRect.Contains(_screenPoint) || !backupRect.Contains(_screenPoint)) {
@@ -334,7 +334,7 @@ public class PlayerController : MonoBehaviour {
 	}
 	
 	private void selectUnit() {
-		Ray mouseRay = playerCam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f));
+		Ray mouseRay = PlayerCam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0f));
 		
 		RaycastHit[] hits = Physics.RaycastAll(mouseRay);
 		foreach (RaycastHit hit in hits) {			
@@ -458,7 +458,7 @@ public class PlayerController : MonoBehaviour {
 		if (entity != null && !entity.IsDead) {
 			float width = 100f, height = 20f;
 
-			Vector3 healthBarPos = playerCam.WorldToScreenPoint(entity.transform.position);
+			Vector3 healthBarPos = PlayerCam.WorldToScreenPoint(entity.transform.position);
 			float barWidth = width * (entity.CurrentHitPoints / entity.MaxHitPoints);
 			
 			GUI.BeginGroup(new Rect(healthBarPos.x - (width/2f), screenHeight - healthBarPos.y - (width/2f), barWidth, height));

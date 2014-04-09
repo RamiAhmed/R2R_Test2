@@ -1,0 +1,146 @@
+fileFormatVersion: 2
+guid: 1892ad8cfb5289f4e8c58edab8575229
+ModelImporter:
+  serializedVersion: 15
+  fileIDToRecycleName:
+    100000: ikHandle1
+    100002: ikHandle2
+    100004: ikHandle3
+    100006: ikHandle4
+    100008: joint1
+    100010: joint10
+    100012: joint11
+    100014: joint12
+    100016: joint13
+    100018: joint14
+    100020: joint15
+    100022: joint2
+    100024: joint3
+    100026: joint4
+    100028: joint5
+    100030: joint6
+    100032: joint7
+    100034: joint8
+    100036: joint9
+    100038: L_foot
+    100040: L_hand_control
+    100042: polySurface2
+    100044: polySurface4
+    100046: polySurface5
+    100048: polySurface6
+    100050: polySurface7
+    100052: polySurface8
+    100054: polySurface9
+    100056: r_foot
+    100058: R_hand_control
+    100060: //RootNode
+    100062: staff
+    100064: transform1
+    400000: ikHandle1
+    400002: ikHandle2
+    400004: ikHandle3
+    400006: ikHandle4
+    400008: joint1
+    400010: joint10
+    400012: joint11
+    400014: joint12
+    400016: joint13
+    400018: joint14
+    400020: joint15
+    400022: joint2
+    400024: joint3
+    400026: joint4
+    400028: joint5
+    400030: joint6
+    400032: joint7
+    400034: joint8
+    400036: joint9
+    400038: L_foot
+    400040: L_hand_control
+    400042: polySurface2
+    400044: polySurface4
+    400046: polySurface5
+    400048: polySurface6
+    400050: polySurface7
+    400052: polySurface8
+    400054: polySurface9
+    400056: r_foot
+    400058: R_hand_control
+    400060: //RootNode
+    400062: staff
+    400064: transform1
+    2300000: polySurface4
+    2300002: polySurface5
+    2300004: polySurface6
+    2300006: polySurface7
+    2300008: polySurface8
+    2300010: polySurface9
+    2300012: staff
+    3300000: polySurface4
+    3300002: polySurface5
+    3300004: polySurface6
+    3300006: polySurface7
+    3300008: polySurface8
+    3300010: polySurface9
+    3300012: staff
+    4300000: polySurface4
+    4300002: polySurface5
+    4300004: polySurface6
+    4300006: polySurface7
+    4300008: polySurface8
+    4300010: polySurface9
+    4300012: staff
+    7400000: Take 001
+    9500000: //RootNode
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: .00999999978
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    handles: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  additionalBone: 1
+  animationType: 2
+  userData: 

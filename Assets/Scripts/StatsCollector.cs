@@ -60,12 +60,16 @@ public class StatsCollector : MonoBehaviour {
 		TotalTimeSpent += Time.deltaTime;
 
 		if (Input.GetKeyDown(KeyCode.Print) || Input.GetKeyDown(KeyCode.SysReq) || Input.GetKeyDown(KeyCode.F10)) {
-			string time = System.DateTime.Now.Hour + "-" + System.DateTime.Now.Minute;
-			string date = System.DateTime.Now.Day + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Year + " " + time;
-			string path = Application.dataPath + "/ScreenShot_" + date + ".png";
-			Debug.Log("Saving Screenshot at path: " + path);
-			Application.CaptureScreenshot(path);
+			TakeScreenshot();
 		}
+	}
+
+	public static void TakeScreenshot() {
+		string time = System.DateTime.Now.Hour + "-" + System.DateTime.Now.Minute;
+		string date = System.DateTime.Now.Day + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Year + " " + time;
+		string path = Application.dataPath + "/ScreenShots/ScreenShot_" + date + "_" + time + ".png";
+		Debug.Log("Saving Screenshot at path: " + path);
+		Application.CaptureScreenshot(path);
 	}
 
 }

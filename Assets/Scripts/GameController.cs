@@ -71,6 +71,9 @@ public class GameController : MonoBehaviour {
 
 	private MenuController menuController = null;
 
+	private MouseTracker mouseTracker = null;
+
+
 	void Start () {
 		enemies = new List<Entity>();
 		players = new List<PlayerController>();
@@ -110,6 +113,12 @@ public class GameController : MonoBehaviour {
 		if (menuController == null) {
 			menuController = this.GetComponentInChildren<MenuController>();
 		}
+
+		mouseTracker = this.GetComponent<MouseTracker>();
+		if (mouseTracker == null) 
+			mouseTracker = this.GetComponentInChildren<MouseTracker>();
+			if (mouseTracker == null)
+				Debug.LogWarning("GameController could not find mouse tracker");
 	}
 
 	private void stopBuildMusic() {
@@ -336,10 +345,15 @@ public class GameController : MonoBehaviour {
 	public void EndGame(bool bRestarting) {
 		if (!bRestarting && !GameEnded) {
 			GameEnded = true;
-			scenarioHandler.IterateScenario();
+			//scenarioHandler.IterateScenario();
 		}
 		else {
-			Application.LoadLevel(0);	
+			//Application.LoadLevel(0);	
+			mouseTracker.bForceRenderHeatmap = true;
+			menuController.bForceDisableMenu = true;
+			
+			Invoke("takeEndScreenshot", 1f);
+			Invoke("exitGame", 3f);
 		}
 	}
 	
@@ -352,8 +366,22 @@ public class GameController : MonoBehaviour {
 			CurrentGameState = GameState.QUESTIONNAIRE;
 		}
 		else {
-			Application.Quit();	
+			mouseTracker.bForceRenderHeatmap = true;
+			menuController.bForceDisableMenu = true;
+
+			Invoke("takeEndScreenshot", 1f);
+			Invoke("exitGame", 3f);
 		}
+	}
+
+
+
+	private void takeEndScreenshot() {
+		StatsCollector.TakeScreenshot();
+	}
+
+	private void exitGame() {
+		Application.Quit();	
 	}
 	
 }

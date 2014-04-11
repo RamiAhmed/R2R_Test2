@@ -2,6 +2,8 @@
 using System.Collections;
 
 public class MenuController : MonoBehaviour {
+
+	public bool bForceDisableMenu = false;
 	
 	public GUISkin MenuSkin;
 
@@ -33,6 +35,10 @@ public class MenuController : MonoBehaviour {
 	}
 	
 	void OnGUI() {
+		if (bForceDisableMenu) {
+			_gameController.CurrentGameState = GameController.GameState.PLAY;
+		}
+
 		if (_gameController.CurrentGameState == GameController.GameState.MENU || _gameController.CurrentGameState == GameController.GameState.ENDING) {
 			if (MenuSkin != null && GUI.skin != MenuSkin) {
 				GUI.skin = MenuSkin;

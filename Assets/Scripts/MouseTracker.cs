@@ -56,7 +56,7 @@ public class MouseTracker : MonoBehaviour {
 		if (currentGaze.z > 0) {
 			Vector2 eyesPos = new Vector2(currentGaze.x, currentGaze.y);
 			Vector3 eyesPos2D = new Vector3(eyesPos.x, eyesPos.y, 0f);
-			GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
+			//GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
 			eyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos.y));
 
 			if (playerCamRef != null) {
@@ -78,7 +78,7 @@ public class MouseTracker : MonoBehaviour {
 	private void trackMouse() {
 		Vector2 mousePos = Input.mousePosition;
 		Vector3 mousePos2D = new Vector3(mousePos.x, Screen.height - mousePos.y, 0f);
-		GA.API.Design.NewEvent("MousePos2D", mousePos2D);
+		//GA.API.Design.NewEvent("MousePos2D", mousePos2D);
 		mousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
 
 		if (playerCamRef != null) {

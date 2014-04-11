@@ -17,21 +17,21 @@ public class DatabaseHandler : MonoBehaviour {
 
 	private WWWForm answersForm = null;
 
-	private ScenarioHandler scenarioHandler = null;
+	//private ScenarioHandler scenarioHandler = null;
 
 	void Start () {
-		scenarioHandler = this.GetComponent<ScenarioHandler>();
+		/*scenarioHandler = this.GetComponent<ScenarioHandler>();
 		if (scenarioHandler == null) {
 			scenarioHandler = this.GetComponentInChildren<ScenarioHandler>();
-		}
+		}*/
 
-		if (!scenarioHandler.DoneTesting) {
+		//if (!scenarioHandler.DoneTesting) {
 			if (questionsDict == null) {
 				StartCoroutine(LoadQuestions());
 			}
 
 			answersForm = new WWWForm();
-		}
+		//}
 	}
 
 	public void ReadyData(Dictionary<string,string> dict) {

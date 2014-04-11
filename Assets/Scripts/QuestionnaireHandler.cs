@@ -41,7 +41,7 @@ public class QuestionnaireHandler : MonoBehaviour {
 
 	private Rect questionnaireRect;
 
-	private ScenarioHandler scenarioHandler = null;
+	//private ScenarioHandler scenarioHandler = null;
 
 	private Vector2 scrollPosition;
 	
@@ -72,33 +72,32 @@ public class QuestionnaireHandler : MonoBehaviour {
 
 			CurrentState++;
 
-			scenarioHandler = GameObject.FindGameObjectWithTag("ScenarioHandler").GetComponent<ScenarioHandler>();
+			/*scenarioHandler = GameObject.FindGameObjectWithTag("ScenarioHandler").GetComponent<ScenarioHandler>();*/
 		}
-
+		/*
 		if (scenarioHandler != null && scenarioHandler.DoneTesting) {
 			QuestionnaireEnabled = false;
 		}
+		*/
 	}
 
 	void Update () {
-		if (QuestionnaireEnabled) {
-			if (_gameController.CurrentGameState == GameController.GameState.QUESTIONNAIRE) {
-				if (!showingQuestionnaire) {
-					showingQuestionnaire = true;
+		if (QuestionnaireEnabled && _gameController.CurrentGameState == GameController.GameState.QUESTIONNAIRE) {
+			if (!showingQuestionnaire) {
+				showingQuestionnaire = true;
 
-					if (questionsDict == null && dbHandler.questionsDict != null) {
-						questionsDict = dbHandler.questionsDict;
-					}
-
-					if (questionsDict == null) {
-						showingQuestionnaire = false;
-					}
+				if (questionsDict == null && dbHandler.questionsDict != null) {
+					questionsDict = dbHandler.questionsDict;
 				}
-			}
-			else {
-				if (showingQuestionnaire) {
+
+				if (questionsDict == null) {
 					showingQuestionnaire = false;
 				}
+			}
+		}
+		else {
+			if (showingQuestionnaire) {
+				showingQuestionnaire = false;
 			}
 		}
 	}
@@ -214,6 +213,7 @@ public class QuestionnaireHandler : MonoBehaviour {
 
 		buildSection("After");
 
+		/*
 		if (scenarioHandler.LastScenario != ScenarioHandler.ScenarioState.NONE) {
 			string id = "preferred_scenario";
 			if (!selectionDict.ContainsKey(id)) {
@@ -223,6 +223,7 @@ public class QuestionnaireHandler : MonoBehaviour {
 			string[] options = new string[]{"With Tactics", "Without Tactics"};
 			selectionDict[id] = addMultipleChoices(id, "Preferred Scenario", options, "Please choose which scenario you preferred.", selectionDict[id]);
 		}
+		*/
 	}
 
 	private void buildSection(string section) {

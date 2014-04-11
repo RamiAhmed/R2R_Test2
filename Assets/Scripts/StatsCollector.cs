@@ -48,10 +48,14 @@ public class StatsCollector : MonoBehaviour {
 		if (_gameController.players[0].PlayerGold != GoldDepositLeft) {
 			GoldDepositLeft = _gameController.players[0].PlayerGold;
 		}
-		if (scenarioHandler.CurrentScenario != ScenarioHandler.ScenarioState.NONE) {
+		if (scenarioHandler != null && scenarioHandler.CurrentScenario != ScenarioHandler.ScenarioState.NONE) {
 			if (Scenario != scenarioHandler.CurrentScenario.ToString()) {
 				Scenario = scenarioHandler.CurrentScenario.ToString();
 			}
+		}
+		else {
+			if (Scenario != "TAIS")
+				Scenario = "TAIS";
 		}
 		TotalTimeSpent += Time.deltaTime;
 

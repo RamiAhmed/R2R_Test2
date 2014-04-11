@@ -93,6 +93,27 @@ public class DatabaseHandler : MonoBehaviour {
 		answersForm.AddField("raw_enemies_selected", StatsCollector.AmountOfEnemySelections);
 		answersForm.AddField("raw_force_spawns", StatsCollector.AmountOfForceSpawns);
 
+		StatsCollector.TotalTimePlayed = 0;
+		StatsCollector.TotalTimeSpent = 0;
+		StatsCollector.WaveCount = 0;
+		StatsCollector.TotalTacticalChanges = 0;
+		StatsCollector.AmountOfTacticsChanges = 0;
+		StatsCollector.AmountOfConditionChanges = 0;
+		StatsCollector.AmountOfTargetsChanges = 0;
+		StatsCollector.AmountOfConditionChanges = 0;
+		StatsCollector.TotalGoldSpent = 0;
+		StatsCollector.TotalGoldEarned = 0;
+		StatsCollector.TotalUnitsDied = 0;
+		StatsCollector.TotalEnemiesKilled = 0;
+		StatsCollector.GoldDepositLeft = 0;
+		StatsCollector.AmountOfUnitsBought = 0;
+		StatsCollector.AmountOfUnitUpgrades = 0;
+		StatsCollector.AmountOfUnitsMoved = 0;
+		StatsCollector.AmountOfSelections = 0;
+		StatsCollector.AmountOfUnitSelections = 0;
+		StatsCollector.AmountOfEnemySelections = 0;
+		StatsCollector.AmountOfForceSpawns = 0;
+
 		StartCoroutine(SendForm());
 	}
 

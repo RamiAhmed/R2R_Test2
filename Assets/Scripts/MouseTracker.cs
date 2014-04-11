@@ -16,8 +16,8 @@ public class MouseTracker : MonoBehaviour {
 
 	private EyeTribeClient eyeClient = null;
 
-	List<Vector2> mousePoints2D = new List<Vector2>();
-	List<Vector2> eyesPoints2D = new List<Vector2>();
+	private List<Vector2> mousePoints2D = new List<Vector2>();
+	private List<Vector2> eyesPoints2D = new List<Vector2>();
 
 
 	// Use this for initialization

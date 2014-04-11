@@ -65,8 +65,8 @@ public class MouseTracker : MonoBehaviour {
 				Vector3 eyesPos3D = Vector3.zero;
 				foreach (RaycastHit hit in hits) {
 					if (hit.collider.GetType () == typeof(TerrainCollider)) {
-							eyesPos3D = new Vector3 (hit.point.x, hit.point.y, hit.point.z);
-							break;
+						eyesPos3D = new Vector3 (hit.point.x, hit.point.y, hit.point.z);
+						break;
 					}
 				}
 

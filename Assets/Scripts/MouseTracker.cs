@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class MouseTracker : MonoBehaviour {
 
@@ -11,10 +12,11 @@ public class MouseTracker : MonoBehaviour {
 
 	private EyeTribeClient eyeClient = null;
 
+
 	// Use this for initialization
 	void Start () {
 		_gameControllerRef = this.GetComponent<GameController>();
-		eyeClient = GameObject.FindGameObjectWithTag ("EyeTribeHandler").GetComponent<EyeTribeClient>();
+		eyeClient = GameObject.FindGameObjectWithTag("EyeTribeHandler").GetComponent<EyeTribeClient>();
 	}
 	
 	// Update is called once per frame
@@ -28,13 +30,12 @@ public class MouseTracker : MonoBehaviour {
 		if (Time.time - lastMouse > 1f/MouseTrackFrequencyPerSecond) {
 			lastMouse = Time.time;
 
-			string timeNow = _gameControllerRef.GameTime.ToString("F2");
-			trackMouse(timeNow);
-			trackEyes(timeNow);
+			trackMouse();
+			trackEyes();
 		}
 	}
 
-	private void trackEyes(string timeNow) {
+	private void trackEyes() {
 		if (eyeClient == null)
 			return;
 
@@ -42,7 +43,7 @@ public class MouseTracker : MonoBehaviour {
 		if (currentGaze.z > 0) {
 			Vector2 eyesPos = new Vector2(currentGaze.x, currentGaze.y);
 			Vector3 eyesPos2D = new Vector3 (eyesPos.x, eyesPos.y, 0f);
-			GA.API.Design.NewEvent ("EyesPosition2D:" + timeNow, eyesPos2D);
+			GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
 
 			if (playerCamRef != null) {
 				Ray eyesRay = playerCamRef.ScreenPointToRay (eyesPos2D);
@@ -55,15 +56,15 @@ public class MouseTracker : MonoBehaviour {
 					}
 				}
 
-				GA.API.Design.NewEvent ("EyesPosition3D:" + timeNow, eyesPos3D);
+				GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
 			}
 		}
 	}
 
-	private void trackMouse(string timeNow) {
+	private void trackMouse() {
 		Vector2 mousePos = Input.mousePosition;
-		Vector3 mousePos2D = new Vector3(mousePos.x, mousePos.y, 0f);
-		GA.API.Design.NewEvent("MousePosition2D:" + timeNow, mousePos2D);
+		Vector3 mousePos2D = new Vector3(mousePos.x, Screen.height - mousePos.y, 0f);
+		GA.API.Design.NewEvent("MousePos2D", mousePos2D);
 
 		if (playerCamRef != null) {
 			Ray mouseRay = playerCamRef.ScreenPointToRay(mousePos2D);
@@ -76,7 +77,8 @@ public class MouseTracker : MonoBehaviour {
 				}
 			}
 
-			GA.API.Design.NewEvent("MousePosition3D:" + timeNow, mousePos3D);
+			GA.API.Design.NewEvent("MousePos3D", mousePos3D);
 		}
 	}
+
 }

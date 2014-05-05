@@ -16,8 +16,11 @@ public class MouseTracker : MonoBehaviour {
 
 	private EyeTribeClient eyeClient = null;
 
-	private List<Vector2> mousePoints2D = new List<Vector2>();
-	private List<Vector2> eyesPoints2D = new List<Vector2>();
+	public List<Vector2> MousePoints2D = new List<Vector2>();
+	public List<Vector2> EyesPoints2D = new List<Vector2>();
+
+	public List<Vector3> MousePoints3D = new List<Vector3>();
+	public List<Vector3> EyesPoints3D = new List<Vector3>();
 
 
 	// Use this for initialization
@@ -57,7 +60,7 @@ public class MouseTracker : MonoBehaviour {
 			Vector2 eyesPos = new Vector2(currentGaze.x, currentGaze.y);
 			Vector3 eyesPos2D = new Vector3(eyesPos.x, eyesPos.y, 0f);
 			//GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
-			eyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos.y));
+			EyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos.y));
 
 			if (playerCamRef != null) {
 				Ray eyesRay = playerCamRef.ScreenPointToRay (eyesPos2D);
@@ -70,6 +73,7 @@ public class MouseTracker : MonoBehaviour {
 					}
 				}
 
+				EyesPoints3D.Add(eyesPos3D);
 				GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
 			}
 		}
@@ -79,7 +83,7 @@ public class MouseTracker : MonoBehaviour {
 		Vector2 mousePos = Input.mousePosition;
 		Vector3 mousePos2D = new Vector3(mousePos.x, Screen.height - mousePos.y, 0f);
 		//GA.API.Design.NewEvent("MousePos2D", mousePos2D);
-		mousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
+		MousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
 
 		if (playerCamRef != null) {
 			Ray mouseRay = playerCamRef.ScreenPointToRay(mousePos2D);
@@ -92,6 +96,7 @@ public class MouseTracker : MonoBehaviour {
 				}
 			}
 
+			MousePoints3D.Add(mousePos3D);
 			GA.API.Design.NewEvent("MousePos3D", mousePos3D);
 		}
 	}
@@ -100,12 +105,12 @@ public class MouseTracker : MonoBehaviour {
 		if (HeatmapImage != null) {
 			float pointWidth = 20f,
 				  pointHeight = 20f;
-			foreach (Vector2 point in mousePoints2D) {
+			foreach (Vector2 point in MousePoints2D) {
 				GUI.DrawTexture(new Rect(point.x - (pointWidth/2f), point.y - (pointHeight/2f), pointWidth, pointHeight), HeatmapImage);
 			}
 
-			if (EyesHeatmapImage != null && eyesPoints2D.Count > 0) {
-				foreach (Vector2 point in eyesPoints2D) {
+			if (EyesHeatmapImage != null && EyesPoints2D.Count > 0) {
+				foreach (Vector2 point in EyesPoints2D) {
 					GUI.DrawTexture(new Rect(point.x - (pointWidth/2f), point.y - (pointHeight/2f), pointWidth, pointHeight), EyesHeatmapImage);
 				}
 			}

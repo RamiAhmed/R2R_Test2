@@ -17,6 +17,8 @@ public class DatabaseHandler : MonoBehaviour {
 
 	private WWWForm answersForm = null;
 
+	private MouseTracker mouseTracker = null;
+
 	//private ScenarioHandler scenarioHandler = null;
 
 	void Start () {
@@ -32,6 +34,10 @@ public class DatabaseHandler : MonoBehaviour {
 
 			answersForm = new WWWForm();
 		//}
+
+		mouseTracker = GameObject.FindGameObjectWithTag("GameController").GetComponent<MouseTracker>();
+		if (mouseTracker == null)
+			Debug.LogError("Could not locate MouseTracker component on GameController");
 	}
 
 	public void ReadyData(Dictionary<string,string> dict) {
@@ -92,6 +98,32 @@ public class DatabaseHandler : MonoBehaviour {
 		answersForm.AddField("raw_units_selected", StatsCollector.AmountOfUnitSelections);
 		answersForm.AddField("raw_enemies_selected", StatsCollector.AmountOfEnemySelections);
 		answersForm.AddField("raw_force_spawns", StatsCollector.AmountOfForceSpawns);
+
+
+		string eyesPos2D = "";
+		string eyesPos3D = "";
+		string mousePos2D = "";
+		string mousePos3D = "";
+
+		foreach (Vector2 eyesPos in mouseTracker.EyesPoints2D) {
+			eyesPos2D += "(" + eyesPos.x + "," + eyesPos.y + ");";
+		}
+		foreach (Vector2 mousePos in mouseTracker.MousePoints2D) {
+			mousePos2D += "(" + mousePos.x + "," + mousePos.y + ");";
+		}
+
+		foreach (Vector3 eyesPos in mouseTracker.EyesPoints3D) {
+			eyesPos3D += "(" + eyesPos.x + "," + eyesPos.y + "," + eyesPos.z + ");";
+		}
+		foreach (Vector3 mousePos in mouseTracker.MousePoints3D) {
+			mousePos3D += "(" + mousePos.x + "," + mousePos.y + "," + mousePos.z + ");";
+		}
+
+		answersForm.AddField("raw_eyes_pos_2D", eyesPos2D);
+		answersForm.AddField("raw_eyes_pos_3D", eyesPos3D);
+		answersForm.AddField("raw_mouse_pos_2D", mousePos2D);
+		answersForm.AddField("raw_mouse_pos_3D", mousePos3D);
+
 
 		StatsCollector.TotalTimePlayed = 0;
 		StatsCollector.TotalTimeSpent = 0;

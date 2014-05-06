@@ -401,14 +401,16 @@ public class PlayerController : MonoBehaviour {
 		if (scenarioHandler.LastScenario == ScenarioHandler.ScenarioState.NONE) {
 			boxString += "This game is inspired by Tower Defense games, thus you must defend your Gate of Life by buying and placing units to defend against incoming waves of creeps (see arrows in-game). ";
 			boxString += "Your units respawn if they die as soon as the next build phase starts. ";
-			boxString += "Since this is a prototype game meant for academic testing, the game features two scenarios - one with tactics and one without. ";
-			boxString += "This means that after you lose or win the first scenario, a second scenario will be automatically launched. Please play through both scenarios. ";
+			boxString += "Since this is a prototype game meant for academic testing, the game will most likely contains bugs and other issues. ";
+			//			boxString += "Since this is a prototype game meant for academic testing, the game features two scenarios - one with tactics and one without. ";
+			//boxString += "This means that after you lose or win the first scenario, a second scenario will be automatically launched. Please play through both scenarios. ";
 		}
-		else if (!scenarioHandler.DoneTesting) {
-			boxString += "Congratulations on finishing the first scenario and thank you for your feedback. The second scenario will commence as soon as you click 'continue'. ";
-		}
+		//else if (!scenarioHandler.DoneTesting) {
+		//	boxString += "Congratulations on finishing the first scenario and thank you for your feedback. The second scenario will commence as soon as you click 'continue'. ";
+		//}
 		else {
-			boxString += "Congratulations on finishing both scenarios and thereby concluding the formal test, and thank you very much for your feedback. ";
+			//boxString += "Congratulations on finishing both scenarios and thereby concluding the formal test, and thank you very much for your feedback. ";
+			boxString += "Congratulations on concluding the formal test, and thank you very much for your feedback. ";
 			boxString += "Now you may play freely without being interrupted by questions or you may quit the game at will. ";
 		}
 		

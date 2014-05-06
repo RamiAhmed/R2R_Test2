@@ -9,7 +9,7 @@ public class ScenarioHandler : MonoBehaviour {
 		NONE
 	}
 
-	public ScenarioState CurrentScenario = ScenarioState.NONE;
+	public ScenarioState CurrentScenario = ScenarioState.WITH_TAIS;
 	public ScenarioState LastScenario = ScenarioState.NONE;
 
 	public bool DoneTesting = false;
@@ -36,13 +36,14 @@ public class ScenarioHandler : MonoBehaviour {
 		}
 		else {
 			if (CurrentScenario == ScenarioState.NONE) {
-				CurrentScenario = Random.Range(0, 2) == 0 ? ScenarioState.WITH_TAIS : ScenarioState.WITHOUT_TAIS;
+				//CurrentScenario = Random.Range(0, 2) == 0 ? ScenarioState.WITH_TAIS : ScenarioState.WITHOUT_TAIS;
+				CurrentScenario = ScenarioState.WITH_TAIS;
 			}
 		}
 	}
 
 	public void IterateScenario() {
-		if (!DoneTesting) {
+		/*if (!DoneTesting) {
 			if (LastScenario == ScenarioState.NONE) {
 				LastScenario = CurrentScenario;
 				CurrentScenario = LastScenario == ScenarioState.WITHOUT_TAIS ? ScenarioState.WITH_TAIS : ScenarioState.WITHOUT_TAIS;
@@ -53,6 +54,6 @@ public class ScenarioHandler : MonoBehaviour {
 				CurrentScenario = ScenarioState.WITH_TAIS;
 				Debug.Log("Done Scenario testing");
 			}
-		}
+		}*/
 	}
 }

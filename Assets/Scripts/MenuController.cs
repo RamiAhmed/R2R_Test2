@@ -62,10 +62,10 @@ public class MenuController : MonoBehaviour {
 			
 			GUILayout.BeginVertical();
 
-			string scenario = scenarioHandler.CurrentScenario == ScenarioHandler.ScenarioState.WITH_TAIS ? "With Tactics" : "Without Tactics";
+			//string scenario = scenarioHandler.CurrentScenario == ScenarioHandler.ScenarioState.WITH_TAIS ? "With Tactics" : "Without Tactics";
 
 			string title = "Right to Rule - Prototype 1";
-			title += "\nCurrent Scenario: " + scenario;
+			//title += "\nCurrent Scenario: " + scenario;
 			
 			GUILayout.Box(new GUIContent(title), GUILayout.Height(elementHeight));
 			

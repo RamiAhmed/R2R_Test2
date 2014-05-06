@@ -18,9 +18,14 @@ public class MouseTracker : MonoBehaviour {
 
 	public List<Vector2> MousePoints2D = new List<Vector2>();
 	public List<Vector2> EyesPoints2D = new List<Vector2>();
+	public List<Vector2> LeftClickPoints2D = new List<Vector2>();
+	public List<Vector2> RightClickPoints2D = new List<Vector2>();
 
 	public List<Vector3> MousePoints3D = new List<Vector3>();
 	public List<Vector3> EyesPoints3D = new List<Vector3>();
+	public List<Vector3> LeftClickPoints3D = new List<Vector3>();
+	public List<Vector3> RightClickPoints3D = new List<Vector3>();
+
 
 
 	// Use this for initialization
@@ -37,11 +42,52 @@ public class MouseTracker : MonoBehaviour {
 		if (eyeClient == null) 
 			eyeClient = GameObject.FindGameObjectWithTag("EyeTribeHandler").GetComponent<EyeTribeClient>();
 
-		if (Time.time - lastMouse > 1f/MouseTrackFrequencyPerSecond) {
-			lastMouse = Time.time;
+		if (_gameControllerRef.CurrentGameState == GameController.GameState.PLAY) {
 
-			trackMouse();
-			trackEyes();
+			if (Time.time - lastMouse > 1f/MouseTrackFrequencyPerSecond) {
+				lastMouse = Time.time;
+
+				trackMouse();
+				trackEyes();
+			}
+
+			if (Input.GetMouseButtonDown(0)) {
+				Vector2 clickPos = Input.mousePosition;
+				clickPos.y = Screen.height - clickPos.y;
+
+				LeftClickPoints2D.Add(clickPos);
+
+				Ray clickRay = playerCamRef.ScreenPointToRay(clickPos);
+				RaycastHit[] hits = Physics.RaycastAll(clickRay);
+				Vector3 clickPos3D = Vector3.zero;
+				foreach (RaycastHit hit in hits) {
+					if (hit.collider.GetType () == typeof(TerrainCollider)) {
+						clickPos3D = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+						break;
+					}
+				}
+
+				LeftClickPoints3D.Add(clickPos3D);
+			}
+
+			if (Input.GetMouseButtonDown(1)) {
+				Vector2 clickPos = Input.mousePosition;
+				clickPos.y = Screen.height - clickPos.y;
+
+				RightClickPoints2D.Add(clickPos);
+
+				Ray clickRay = playerCamRef.ScreenPointToRay(clickPos);
+				RaycastHit[] hits = Physics.RaycastAll(clickRay);
+				Vector3 clickPos3D = Vector3.zero;
+				foreach (RaycastHit hit in hits) {
+					if (hit.collider.GetType () == typeof(TerrainCollider)) {
+						clickPos3D = new Vector3(hit.point.x, hit.point.y, hit.point.z);
+						break;
+					}
+				}
+				
+				RightClickPoints3D.Add(clickPos3D);
+			}
 		}
 	}
 

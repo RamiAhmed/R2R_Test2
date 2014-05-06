@@ -76,6 +76,26 @@ public class DatabaseHandler : MonoBehaviour {
 
 	}
 
+	private string convertListToString(List<Vector2> list) {
+		string result = "";
+
+		foreach (Vector2 pos in list) {
+			result += String.Format("({0},{1});", pos.x, pos.y);
+		}
+
+		return result;
+	}
+
+	private string convertListToString(List<Vector3> list) {
+		string result = "";
+
+		foreach (Vector3 pos in list) {
+			result += String.Format("({0},{1},{2});", pos.x, pos.y, pos.z);
+		}
+
+		return result;
+	}
+
 	public void SubmitAllData() {
 		answersForm.AddField("scenario", StatsCollector.Scenario);
 		answersForm.AddField("raw_time_played", Mathf.RoundToInt(StatsCollector.TotalTimePlayed));
@@ -100,29 +120,24 @@ public class DatabaseHandler : MonoBehaviour {
 		answersForm.AddField("raw_force_spawns", StatsCollector.AmountOfForceSpawns);
 
 
-		string eyesPos2D = "";
-		string eyesPos3D = "";
-		string mousePos2D = "";
-		string mousePos3D = "";
-
-		foreach (Vector2 eyesPos in mouseTracker.EyesPoints2D) {
-			eyesPos2D += "(" + eyesPos.x + "," + eyesPos.y + ");";
-		}
-		foreach (Vector2 mousePos in mouseTracker.MousePoints2D) {
-			mousePos2D += "(" + mousePos.x + "," + mousePos.y + ");";
-		}
-
-		foreach (Vector3 eyesPos in mouseTracker.EyesPoints3D) {
-			eyesPos3D += "(" + eyesPos.x + "," + eyesPos.y + "," + eyesPos.z + ");";
-		}
-		foreach (Vector3 mousePos in mouseTracker.MousePoints3D) {
-			mousePos3D += "(" + mousePos.x + "," + mousePos.y + "," + mousePos.z + ");";
-		}
+		string eyesPos2D = convertListToString(mouseTracker.EyesPoints2D);
+		string eyesPos3D = convertListToString(mouseTracker.EyesPoints3D);
+		string mousePos2D = convertListToString(mouseTracker.MousePoints2D);
+		string mousePos3D = convertListToString(mouseTracker.MousePoints3D);
+		string leftClickPos2D = convertListToString(mouseTracker.LeftClickPoints2D);
+		string leftClickPos3D = convertListToString(mouseTracker.LeftClickPoints3D);
+		string rightClickPos2D = convertListToString(mouseTracker.RightClickPoints2D);
+		string rightClickPos3D = convertListToString(mouseTracker.RightClickPoints3D);
+	
 
 		answersForm.AddField("raw_eyes_pos_2D", eyesPos2D);
 		answersForm.AddField("raw_eyes_pos_3D", eyesPos3D);
 		answersForm.AddField("raw_mouse_pos_2D", mousePos2D);
 		answersForm.AddField("raw_mouse_pos_3D", mousePos3D);
+		answersForm.AddField("raw_lclick_pos_2D", leftClickPos2D);
+		answersForm.AddField("raw_lclick_pos_3D", leftClickPos3D);
+		answersForm.AddField("raw_rclick_pos_2D", rightClickPos2D);
+		answersForm.AddField("raw_rclick_pos_3D", rightClickPos3D);
 
 
 		StatsCollector.TotalTimePlayed = 0;

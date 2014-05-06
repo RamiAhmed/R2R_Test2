@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour {
 	[Range(5, 50)]
 	public int MaxWaveSize = 20;
 
-	[Range(9, 100)]
+	[Range(1, 100)]
 	public int MaximumWaveCount = 10;
 	
 	[HideInInspector]

@@ -183,7 +183,7 @@ public class DatabaseHandler : MonoBehaviour {
 	IEnumerator LoadQuestions() {
 		www = new WWW(getURL);
 
-		float elapsedTime = 0.0f;
+		float elapsedTime = 0f;
 
 		while (!www.isDone) {
 			elapsedTime += Time.deltaTime;

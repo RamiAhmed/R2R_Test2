@@ -12,9 +12,10 @@ public class ResultsDownloader : EditorWindow {
 
 	public string DatabaseURL = "www.alphastagestudios.com/test/results";
 
-	//public IDictionary resultsDict = null;
-
 	private WWW resultsWWW;
+
+	private ResultsHeatmapGenerator resultsHeatmapRef = null;
+
 
 	// Add menu item named "Download Results" to the Window menu
 	[MenuItem("Window/Download Results")]
@@ -50,7 +51,8 @@ public class ResultsDownloader : EditorWindow {
 			}
 
 			if (resultsGetterGO != null) {
-				resultsGetterGO.GetComponent<DummyScript>().StartCoroutine(GetResults());
+				resultsHeatmapRef = resultsGetterGO.GetComponent<ResultsHeatmapGenerator>();
+				resultsHeatmapRef.StartCoroutine(GetResults());
 			}
 			else {
 				Debug.LogError("ResultsGetterGO is still null");
@@ -146,7 +148,8 @@ public class ResultsDownloader : EditorWindow {
 					
 
 		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
-		
+
+		int rowIndex = 0;
 		int index = 0;
 		foreach (DictionaryEntry entry in dict) {
 			if (entry.Value != null) {
@@ -160,6 +163,12 @@ public class ResultsDownloader : EditorWindow {
 						if (el.Value != null) {
 							string elStr = el.Value.ToString().Replace(";", "|");
 							stringBuilder.Append(string.Format("{0};", elStr));
+
+							int intKey = 0;
+							bool result = int.TryParse(el.Key.ToString(), out intKey);
+							if (result && intKey > 39) {
+								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns);
+							}
 						}
 						else {
 							stringBuilder.Append("NaN;");
@@ -167,6 +176,7 @@ public class ResultsDownloader : EditorWindow {
 					}
 
 					stringBuilder.AppendLine();
+					rowIndex++;
 				}				
 			}
           	else {
@@ -193,6 +203,14 @@ public class ResultsDownloader : EditorWindow {
 			Debug.Log("Successfully wrote out to file at: " + filePath);
 		else 
 			Debug.LogError("Failed to write out to file at path: " + filePath);
+	}
+
+	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns) {
+		List<string> coords = new List<string>();
+		coords.AddRange(list.Split('|'));
+
+		string key = string.Format("{0}:{1}", rowIndex.ToString(), columns[index]);
+		resultsHeatmapRef.AddToDict(key, coords);
 	}
 
 }

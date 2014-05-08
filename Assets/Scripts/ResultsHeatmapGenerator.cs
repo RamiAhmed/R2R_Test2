@@ -15,54 +15,6 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	private WWW resultsWWW;
 
 
-	public void SetHeatmapToggles(bool[] heatmapToggles) {
-		if (HeatmapDict.Count > 0) {
-			int index = 0;
-			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
-				if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
-					/*
-					Debug.Log("index: " + HeatmapDict.GetIndex(pair.Key));
-					string strIndex = strIndex = pair.Key.Substring(0, 2);
-
-					int index;
-					bool bIndex = int.TryParse(strIndex, out index);
-					if (bIndex && index < heatmapToggles.Length) {
-						heatmapToggles[index] = false;
-						heatmapToggles[index] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[index]);
-					}
-					else {
-						Debug.LogError("Failed to parse index from heatmap dict key: " + pair.Key + ", strIndex: " + strIndex);
-					}*/
-					/*
-					if (index < heatmapToggles.Length) {
-						heatmapToggles[index] = false;
-						heatmapToggles[index] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[index]);
-					}
-
-
-					index++;*/
-				}
-			}
-			/*
-			for (int i = 0; i < heatmapToggles.Length; i++) {
-				//GameObject go = GameObject.Find(HeatmapDict.GetKey(i));
-				GameObject go = findChildByName(HeatmapDict.GetKey(i));
-				if (go != null) {
-					go.SetActive(heatmapToggles[i]);
-				}
-			}*/
-		}
-	}
-
-	private GameObject findChildByName(string name) {
-		for (int i = 0; i < this.transform.childCount; i++) {
-			if (this.transform.GetChild(i).name == name)
-				return this.transform.GetChild(i).gameObject;
-		}
-
-		return null;
-	}
-
 
 	public void AddToDict(string key, List<string> value) {
 		if (HeatmapDict.ContainsKey(key)) {

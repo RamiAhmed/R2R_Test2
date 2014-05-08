@@ -12,11 +12,7 @@ public class ResultsDownloader : EditorWindow {
 
 	[SerializeField]
 	private ResultsHeatmapGenerator resultsHeatmapRef = null;
-
-	//private Dictionary<string, bool> heatmapToggles = new Dictionary<string, bool>();
-	//private List<bool> heatmapToggles = new List<bool>();
-	[SerializeField]
-	private bool[] heatmapToggles = new bool[100];
+	
 
 	// Add menu item named "Download Results" to the Window menu
 	[MenuItem("Window/Download Results")]
@@ -54,7 +50,6 @@ public class ResultsDownloader : EditorWindow {
 			if (resultsGetterGO != null) {
 				resultsHeatmapRef = resultsGetterGO.GetComponent<ResultsHeatmapGenerator>();
 
-				//EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
 				resultsHeatmapRef.StartGetResults(this.DatabaseURL);
 			}
 			else {
@@ -74,14 +69,9 @@ public class ResultsDownloader : EditorWindow {
 				Debug.LogError("Could not generate heatmap as results have not been downloaded (could not find results getter game object)");
 			}
 			else {
-			//	EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
 				resultsHeatmapRef.Render3DHeatmaps();
 			}
 		}
-		/*
-		if (resultsHeatmapRef != null) {
-			resultsHeatmapRef.SetHeatmapToggles(heatmapToggles);
-		}*/
 	}
 
 

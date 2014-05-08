@@ -1,21 +1,18 @@
 ﻿using System;
-using System.IO;
-using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using MiniJSON;
+
 
 [ExecuteInEditMode] 
 public class ResultsDownloader : EditorWindow {
 
 	public string DatabaseURL = "www.alphastagestudios.com/test/results";
-
-	private WWW resultsWWW;
-
+	
 	private ResultsHeatmapGenerator resultsHeatmapRef = null;
 
+	private Dictionary<string, bool> heatmapToggles = new Dictionary<string, bool>();
 
 	// Add menu item named "Download Results" to the Window menu
 	[MenuItem("Window/Download Results")]
@@ -52,165 +49,44 @@ public class ResultsDownloader : EditorWindow {
 
 			if (resultsGetterGO != null) {
 				resultsHeatmapRef = resultsGetterGO.GetComponent<ResultsHeatmapGenerator>();
-				resultsHeatmapRef.StartCoroutine(GetResults());
+
+				EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
+				resultsHeatmapRef.StartGetResults(this.DatabaseURL);
 			}
 			else {
 				Debug.LogError("ResultsGetterGO is still null");
 			}
 		}
-		
-	}
 
-	IEnumerator GetResults() {
-		resultsWWW = new WWW(DatabaseURL);
+		if (GUILayout.Button(new GUIContent("Generate 3D Heatmap - Mouse", "Press this button to generate game objects to serve as 3D heatmap points for the mouse cursor"))) {
+			if (resultsHeatmapRef == null) 
+				resultsHeatmapRef = GameObject.FindGameObjectWithTag("ResultsGetter").GetComponent<ResultsHeatmapGenerator>();
 
-		float elapsedTime = 0f;
-
-		while (!resultsWWW.isDone) {
-			elapsedTime += Time.fixedDeltaTime;
-			Debug.Log("elapsedTime: " + elapsedTime);
-			
-			if (elapsedTime >= 10.0f) {
-				Debug.LogError("WWW request to URL: " + DatabaseURL + "\n Timed out.");
-				yield break;
+			if (resultsHeatmapRef == null) {
+				Debug.LogError("Could not generate heatmap as results have not been downloaded (could not find results getter game object)");
+			}
+			else {
+				EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
+				resultsHeatmapRef.Render3DMouseHeatmap();
 			}
 		}
-		
-		if (!resultsWWW.isDone || !string.IsNullOrEmpty(resultsWWW.error)) {
-			Debug.LogError("WWW request to URL: " + DatabaseURL + " failed.\n" + resultsWWW.error);
-			yield break;
-		}
-		
-		string response = (resultsWWW.text).ToString();
-		response = response.Substring(1, response.Length-1);
-		response = "{" + response + "}";
 
-		Debug.Log("Received text: " + response);
-		Debug.Log("WWW request (loading results) took: " + elapsedTime.ToString() + " seconds.");
+		if (resultsHeatmapRef != null) {
+			//EditorGUILayout.BeginToggleGroup();
 
-		StringBuilder stringBuilder = new StringBuilder();
+			if (resultsHeatmapRef.HeatmapDict.Count > 0) {
+				foreach (KeyValuePair<string, List<string>> pair in resultsHeatmapRef.HeatmapDict) {
+					if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
 
-		string[] columns = new string[] {
-			"P id",
-			"Timestamp",
-			"Gender",
-			"Age",
-			"Playing Frequency",
-			"Playing AmounT",
-			"Favourite Genres/Games",
-			"Starting Desire",
-			"Starting Reasons",
-			"Starting Comments",
-			"During 1 Desire",
-			"During 1 Reasons",
-			"During 1 Comments",
-			"After Desire",
-			"After Reasons",
-			"After Comments",
-			"Intrusive Questionnaire",
-			"Intrusive Eye tracking",
-			"Intrusive Mouse tracking",
-			"Intrusive Game metrics",
-			"Raw Time Played",
-			"Raw Time Spent",
-			"Raw Wave Count",
-			"Raw Total Tactics Changes",
-			"Raw Tactics Changes",
-			"Raw Target Changes",
-			"Raw Condition Changes",
-			"Raw Gold Spent",
-			"Raw Gold Earned",
-			"Raw Units Died",
-			"Raw Enemies Killed",
-			"Raw Gold Deposit Left",
-			"Raw Units Bought",
-			"Raw Unit Upgrades",
-			"Raw Units Sold",
-			"Raw Units Moved",
-			"Raw Total Selections",
-			"Raw Units Selected",
-			"Raw Enemies Selected",
-			"Raw Force Spawns",
-			"Raw Eyes Pos 2D",
-			"Raw Eyes Pos 3D",
-			"Raw Mouse Pos 2D",
-			"Raw Mouse Pos 3D",
-			"Raw Left Click Pos 2D",
-			"Raw Left Click Pos 3D",
-			"Raw Right Click Pos 2D",
-			"Raw Right Click Pos 3D"
-		};
+						heatmapToggles[pair.Key] = false;
 
-		foreach (string col in columns) {
-			stringBuilder.Append(string.Format("{0};", col));
-		}
-		stringBuilder.AppendLine();
-					
-
-		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
-
-		int rowIndex = 0;
-		int index = 0;
-		foreach (DictionaryEntry entry in dict) {
-			if (entry.Value != null) {
-				IList list = (IList)dict[index.ToString()];
-				index++;
-				
-				foreach (object s in list) {
-					IDictionary iDict = (IDictionary)s;
-					
-					foreach (DictionaryEntry el in iDict) {
-						if (el.Value != null) {
-							string elStr = el.Value.ToString().Replace(";", "|");
-							stringBuilder.Append(string.Format("{0};", elStr));
-
-							int intKey = 0;
-							bool result = int.TryParse(el.Key.ToString(), out intKey);
-							if (result && intKey > 39) {
-								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns);
-							}
-						}
-						else {
-							stringBuilder.Append("NaN;");
-						}
+						heatmapToggles[pair.Key] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[pair.Key]);
 					}
-
-					stringBuilder.AppendLine();
-					rowIndex++;
-				}				
+				}
 			}
-          	else {
-				Debug.Log(string.Format("{0} is null", entry.Key));				 
-			}
+
+			//EditorGUILayout.EndVertical();
 		}
-
-
-		string dirPath = Application.dataPath + "/Results/";
-		string filePath = dirPath + "results.csv";
-		
-		if (!Directory.Exists(dirPath))
-			Directory.CreateDirectory(dirPath);
-		
-		int i = 2;
-		while (File.Exists(filePath)) {
-			filePath = dirPath + "results" + i.ToString() + ".csv";
-			i++;
-		}
-		
-		File.WriteAllText(filePath, stringBuilder.ToString());
-		
-		if (File.Exists(filePath)) 
-			Debug.Log("Successfully wrote out to file at: " + filePath);
-		else 
-			Debug.LogError("Failed to write out to file at path: " + filePath);
-	}
-
-	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns) {
-		List<string> coords = new List<string>();
-		coords.AddRange(list.Split('|'));
-
-		string key = string.Format("{0}:{1}", rowIndex.ToString(), columns[index]);
-		resultsHeatmapRef.AddToDict(key, coords);
 	}
 
 }

@@ -4,15 +4,19 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-
-[ExecuteInEditMode] 
+//[ExecuteInEditMode] 
+[System.Serializable]
 public class ResultsDownloader : EditorWindow {
 
 	public string DatabaseURL = "www.alphastagestudios.com/test/results";
-	
+
+	[SerializeField]
 	private ResultsHeatmapGenerator resultsHeatmapRef = null;
 
-	private Dictionary<string, bool> heatmapToggles = new Dictionary<string, bool>();
+	//private Dictionary<string, bool> heatmapToggles = new Dictionary<string, bool>();
+	//private List<bool> heatmapToggles = new List<bool>();
+	[SerializeField]
+	private bool[] heatmapToggles = new bool[100];
 
 	// Add menu item named "Download Results" to the Window menu
 	[MenuItem("Window/Download Results")]
@@ -50,7 +54,7 @@ public class ResultsDownloader : EditorWindow {
 			if (resultsGetterGO != null) {
 				resultsHeatmapRef = resultsGetterGO.GetComponent<ResultsHeatmapGenerator>();
 
-				EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
+				//EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
 				resultsHeatmapRef.StartGetResults(this.DatabaseURL);
 			}
 			else {
@@ -58,35 +62,28 @@ public class ResultsDownloader : EditorWindow {
 			}
 		}
 
-		if (GUILayout.Button(new GUIContent("Generate 3D Heatmap - Mouse", "Press this button to generate game objects to serve as 3D heatmap points for the mouse cursor"))) {
-			if (resultsHeatmapRef == null) 
-				resultsHeatmapRef = GameObject.FindGameObjectWithTag("ResultsGetter").GetComponent<ResultsHeatmapGenerator>();
+		if (resultsHeatmapRef == null)  {
+			GameObject resultsHeatmapGO = GameObject.FindGameObjectWithTag("ResultsGetter");
+			if (resultsHeatmapGO != null) 
+				resultsHeatmapRef = resultsHeatmapGO.GetComponent<ResultsHeatmapGenerator>();
 
+		}
+
+		if (GUILayout.Button(new GUIContent("Generate 3D Heatmap - Mouse", "Press this button to generate game objects to serve as 3D heatmap points for the mouse cursor"))) {
 			if (resultsHeatmapRef == null) {
 				Debug.LogError("Could not generate heatmap as results have not been downloaded (could not find results getter game object)");
 			}
 			else {
-				EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
+			//	EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
 				resultsHeatmapRef.Render3DMouseHeatmap();
 			}
 		}
-
+		/*
 		if (resultsHeatmapRef != null) {
-			//EditorGUILayout.BeginToggleGroup();
-
-			if (resultsHeatmapRef.HeatmapDict.Count > 0) {
-				foreach (KeyValuePair<string, List<string>> pair in resultsHeatmapRef.HeatmapDict) {
-					if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
-
-						heatmapToggles[pair.Key] = false;
-
-						heatmapToggles[pair.Key] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[pair.Key]);
-					}
-				}
-			}
-
-			//EditorGUILayout.EndVertical();
-		}
+			resultsHeatmapRef.SetHeatmapToggles(heatmapToggles);
+		}*/
 	}
+
+
 
 }

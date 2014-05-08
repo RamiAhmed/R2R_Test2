@@ -11,6 +11,8 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 	[SerializeField]
 	private List<string> _values = null;
 
+	private string _delimiter = ";";
+
 	public HeatmapDictionary() {
 		_keys = new List<string>();
 		_values = new List<string>();
@@ -25,14 +27,14 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 		}
 
 		_keys.Add(key);
-		_values.Add(string.Join(";", list.ToArray()));
+		_values.Add(string.Join(_delimiter, list.ToArray()));
 	}
 
 	public List<string> GetValue(string key) {
 		string values = _values[GetIndex(key)];
 		if (!string.IsNullOrEmpty(values)) {
 			List<string> valuesList = new List<string>();
-			valuesList.AddRange(values.Split(';'));
+			valuesList.AddRange(values.Split(_delimiter.ToCharArray()[0]));
 
 			return valuesList;
 		}
@@ -47,11 +49,21 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 	}
 
 	public int GetIndex(string key) {
-		if (!_keys.Contains(key)) {
+		if (!ContainsKey(key)) {
 			return -1;
 		}
 		else {
 			return _keys.IndexOf(key);
+		}
+	}
+
+	public string GetKey(int index) {
+		string key = _keys[index];
+		if (!ContainsKey(key)) {
+			return "";
+		}
+		else {
+			return key;
 		}
 	}
 
@@ -71,6 +83,26 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 		set {
 			if (value != null) 
 				Add(key, value);
+			else 
+				Debug.LogError("Cannot add null to HeatmapDictionary");
+		}
+	}
+
+	public List<string> this[int index] {
+		get {
+			string key = _keys[index];
+			if (ContainsKey(key)) {
+				return this.GetValue(key);
+			}
+			else {
+				return null;
+			}
+		}
+		set {
+			if (_values != null) {
+				string key = _keys[index];
+				Add(key, value);
+			}
 			else 
 				Debug.LogError("Cannot add null to HeatmapDictionary");
 		}

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
@@ -6,18 +7,61 @@ using System.Collections;
 using System.Collections.Generic;
 using MiniJSON;
 
-//[ExecuteInEditMode]
 [System.Serializable]
 public class ResultsHeatmapGenerator : MonoBehaviour {
 
-	//[SerializeField]
-	//public Dictionary<string, List<string>> HeatmapDict = new Dictionary<string, List<string>>();
 	public HeatmapDictionary HeatmapDict = new HeatmapDictionary();
 
-	//private List<string> dictKeys = new List<string>();
-	//private List<string> dictValues = new List<string>();
-
 	private WWW resultsWWW;
+
+
+	public void SetHeatmapToggles(bool[] heatmapToggles) {
+		if (HeatmapDict.Count > 0) {
+			int index = 0;
+			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
+				if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
+					/*
+					Debug.Log("index: " + HeatmapDict.GetIndex(pair.Key));
+					string strIndex = strIndex = pair.Key.Substring(0, 2);
+
+					int index;
+					bool bIndex = int.TryParse(strIndex, out index);
+					if (bIndex && index < heatmapToggles.Length) {
+						heatmapToggles[index] = false;
+						heatmapToggles[index] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[index]);
+					}
+					else {
+						Debug.LogError("Failed to parse index from heatmap dict key: " + pair.Key + ", strIndex: " + strIndex);
+					}*/
+					/*
+					if (index < heatmapToggles.Length) {
+						heatmapToggles[index] = false;
+						heatmapToggles[index] = EditorGUILayout.ToggleLeft(new GUIContent(pair.Key.ToString()), heatmapToggles[index]);
+					}
+
+
+					index++;*/
+				}
+			}
+			/*
+			for (int i = 0; i < heatmapToggles.Length; i++) {
+				//GameObject go = GameObject.Find(HeatmapDict.GetKey(i));
+				GameObject go = findChildByName(HeatmapDict.GetKey(i));
+				if (go != null) {
+					go.SetActive(heatmapToggles[i]);
+				}
+			}*/
+		}
+	}
+
+	private GameObject findChildByName(string name) {
+		for (int i = 0; i < this.transform.childCount; i++) {
+			if (this.transform.GetChild(i).name == name)
+				return this.transform.GetChild(i).gameObject;
+		}
+
+		return null;
+	}
 
 
 	public void AddToDict(string key, List<string> value) {
@@ -33,14 +77,32 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public void Render3DMouseHeatmap() {
 		if (this.transform.childCount > 0) {
 			while (this.transform.childCount > 0) {
-				DestroyImmediate(this.transform.GetChild(0).gameObject);
+				Transform child = this.transform.GetChild(0);
+				if (child.transform.childCount > 0) {
+					DestroyImmediate(child.transform.GetChild(0).gameObject);
+				}
+
+				DestroyImmediate(child.gameObject);
 			}
 		}
 
 		if (HeatmapDict.Count > 0) {
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
-					renderHeatmapList(convertStringListToVector3(pair.Value));
+					GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
+					parent.transform.parent = this.transform;
+					parent.name = pair.Key;
+
+					if (HeatmapDict.GetIndex(pair.Key) < 10)
+						parent.name = "0" + parent.name;
+
+					if (parent != null) {
+						renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform);
+					}
+					else {
+						Debug.LogError("Could not instantiate heatmap parent");
+						break;
+					}
 				}
 			}
 
@@ -51,13 +113,13 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 	}
 
-	private void renderHeatmapList(List<Vector3> list) {
+	private void renderHeatmapList(List<Vector3> list, Transform parent) {
 		if (list == null || list.Count <= 0) {
 			Debug.LogError("3D Heatmap list is null or has length 0");
 		}
 		else {
 			foreach (Vector3 pos in list) {
-				createHeatmapPoint(this.transform, pos);
+				createHeatmapPoint(parent, pos);
 			}
 		}
 	}

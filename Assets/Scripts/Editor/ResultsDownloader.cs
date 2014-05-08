@@ -69,13 +69,13 @@ public class ResultsDownloader : EditorWindow {
 
 		}
 
-		if (GUILayout.Button(new GUIContent("Generate 3D Heatmap - Mouse", "Press this button to generate game objects to serve as 3D heatmap points for the mouse cursor"))) {
+		if (GUILayout.Button(new GUIContent("Generate 3D Heatmaps", "Press this button to generate game objects to serve as 3D heatmap points"))) {
 			if (resultsHeatmapRef == null) {
 				Debug.LogError("Could not generate heatmap as results have not been downloaded (could not find results getter game object)");
 			}
 			else {
 			//	EditorUtility.SetDirty(resultsHeatmapRef.gameObject);
-				resultsHeatmapRef.Render3DMouseHeatmap();
+				resultsHeatmapRef.Render3DHeatmaps();
 			}
 		}
 		/*

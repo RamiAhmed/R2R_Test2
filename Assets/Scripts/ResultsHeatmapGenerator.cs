@@ -74,7 +74,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 	}
 
-	public void Render3DMouseHeatmap() {
+	public void Render3DHeatmaps() {
 		if (this.transform.childCount > 0) {
 			while (this.transform.childCount > 0) {
 				Transform child = this.transform.GetChild(0);
@@ -88,7 +88,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 		if (HeatmapDict.Count > 0) {
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
-				if (pair.Key.Contains("Mouse") && pair.Key.Contains("3D")) {
+				if (pair.Key.Contains("3D")) {
 					GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
 					parent.transform.parent = this.transform;
 					parent.name = pair.Key;

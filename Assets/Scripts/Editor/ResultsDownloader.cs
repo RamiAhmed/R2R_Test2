@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using MiniJSON;
@@ -9,7 +12,7 @@ public class ResultsDownloader : EditorWindow {
 
 	public string DatabaseURL = "www.alphastagestudios.com/test/results";
 
-	public IDictionary resultsDict = null;
+	//public IDictionary resultsDict = null;
 
 	private WWW resultsWWW;
 
@@ -107,17 +110,64 @@ public class ResultsDownloader : EditorWindow {
 			yield break;
 		}
 		
-		string response = resultsWWW.text;
-		//Debug.Log("Received text: " + response);
+		string response = (resultsWWW.text).ToString();
+		response = response.Substring(1, response.Length-1);
+		response = "{" + response + "}";
+
+		Debug.Log("Received text: " + response);
 		Debug.Log("WWW request (loading results) took: " + elapsedTime.ToString() + " seconds.");
 
-		object jsonResponse = MiniJSON.Json.Deserialize(response);
-		Debug.Log("jsonResponse: " + jsonResponse.ToString());
+		StringBuilder stringBuilder = new StringBuilder();
+
+		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
+
+		int index = 0;
+		foreach (DictionaryEntry entry in dict) {
+			if (entry.Value != null) {
+				IList list = (IList)dict[index.ToString()];
+				index++;
+
+				foreach (object s in list) {
+					IDictionary iDict = (IDictionary)s;
+
+					foreach (DictionaryEntry el in iDict) {
+						if (el.Value != null) {
+							string elStr = el.Value.ToString().Replace(";", "|");
+							stringBuilder.Append(string.Format("{0};", elStr));
+						}
+						else {
+							stringBuilder.Append("NaN;");
+						}
+					}
+
+					stringBuilder.Append(Environment.NewLine);
+				}				
+			}
+          	else
+				Debug.Log(string.Format("{0} is null", entry.Key));				 
+		}
 
 
-		IDictionary responseDict = (IDictionary) MiniJSON.Json.Deserialize(response);
+		string dirPath = Application.dataPath + "/Results/";
+		string filePath = dirPath + "results.csv";
 		
-		resultsDict = responseDict;			
+		if (!Directory.Exists(dirPath))
+			Directory.CreateDirectory(dirPath);
+		
+		int i = 2;
+		while (File.Exists(filePath)) {
+			filePath = dirPath + "results" + i.ToString() + ".csv";
+			i++;
+		}
+		
+		File.WriteAllText(filePath, stringBuilder.ToString());
+		
+		if (File.Exists(filePath)) 
+			Debug.Log("Successfully wrote out to file at: " + filePath);
+		else 
+			Debug.LogError("Failed to write out to file at path: " + filePath);
+
+
 	}
 
 

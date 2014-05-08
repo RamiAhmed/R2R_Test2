@@ -90,14 +90,23 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("3D")) {
 					GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
-					parent.transform.parent = this.transform;
-					parent.name = pair.Key;
 
-					if (HeatmapDict.GetIndex(pair.Key) < 10)
-						parent.name = "0" + parent.name;
 
 					if (parent != null) {
-						renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform);
+						parent.transform.parent = this.transform;
+						parent.name = pair.Key;
+
+						string color = string.Empty;
+						if (pair.Key.Contains("Mouse"))
+							color = "Red";
+						else if (pair.Key.Contains("Eyes"))
+							color = "Blue";
+						else if (pair.Key.Contains("Right"))
+							color = "LightGreen";
+						else if (pair.Key.Contains("Left"))
+							color = "DarkGreen";
+
+						renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color);
 					}
 					else {
 						Debug.LogError("Could not instantiate heatmap parent");
@@ -113,25 +122,25 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 	}
 
-	private void renderHeatmapList(List<Vector3> list, Transform parent) {
+	private void renderHeatmapList(List<Vector3> list, Transform parent, string color) {
 		if (list == null || list.Count <= 0) {
 			Debug.LogError("3D Heatmap list is null or has length 0");
 		}
 		else {
 			foreach (Vector3 pos in list) {
-				createHeatmapPoint(parent, pos);
+				createHeatmapPoint(parent, pos, color);
 			}
 		}
 	}
 
-	private void createHeatmapPoint(Transform parent, Vector3 pos) {
-		UnityEngine.Object heatmapObj = Resources.Load("EditorPrefabs/HeatmapPoint");
+	private void createHeatmapPoint(Transform parent, Vector3 pos, string color) {
+		UnityEngine.Object heatmapObj = Resources.Load("EditorPrefabs/HeatmapPoint" + color);
 		if (heatmapObj != null) {
 			GameObject heatmapGO = Instantiate(heatmapObj) as GameObject;
 			if (heatmapGO != null) {
 				heatmapGO.transform.position = pos;
 				heatmapGO.transform.parent = parent;
-				Debug.Log("Created 3D heatmap game object at: " + pos.ToString());
+				//Debug.Log("Created 3D heatmap game object at: " + pos.ToString());
 			}
 			else {
 				Debug.LogError("Could not instantiate 3D heatmap object as game object");

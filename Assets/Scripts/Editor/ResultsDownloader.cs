@@ -33,7 +33,6 @@ public class ResultsDownloader : EditorWindow {
 			GameObject resultsGetterGO = GameObject.FindGameObjectWithTag("ResultsGetter");
 
 			if (resultsGetterGO == null) {
-
 				UnityEngine.Object prefab = Resources.Load("EditorPrefabs/ResultsGetter");
 
 				if (prefab != null) {
@@ -59,36 +58,6 @@ public class ResultsDownloader : EditorWindow {
 		}
 		
 	}
-	/*
-	private Action.ActionState actionDownloadResults() {
-		resultsWWW = new WWW(DatabaseURL);
-		
-		float elapsedTime = 0f;
-		
-		while (!resultsWWW.isDone) {
-			elapsedTime += Time.deltaTime;
-			
-			if (elapsedTime >= 10.0f) {
-				Debug.LogError("WWW request to URL: " + DatabaseURL + "\n Timed out.");
-				return Action.ActionState.ACTION_ABORTED;
-			}
-		}
-		
-		if (!resultsWWW.isDone || !string.IsNullOrEmpty(resultsWWW.error)) {
-			Debug.LogError("WWW request to URL: " + DatabaseURL + " failed.\n" + resultsWWW.error);
-			return Action.ActionState.ACTION_ABORTED;
-		}
-		
-		string response = resultsWWW.text;
-		Debug.Log("Received text: " + response);
-		Debug.Log("WWW request (loading results) took: " + elapsedTime.ToString() + " seconds.");
-		
-		IDictionary responseDict = (IDictionary) Json.Deserialize(response);
-		
-		resultsDict = responseDict;	
-		
-		return Action.ActionState.ACTION_DONE;
-	}*/
 
 	IEnumerator GetResults() {
 		resultsWWW = new WWW(DatabaseURL);
@@ -119,7 +88,7 @@ public class ResultsDownloader : EditorWindow {
 
 		StringBuilder stringBuilder = new StringBuilder();
 
-		string[] columns = new string[]{
+		string[] columns = new string[] {
 			"P id",
 			"Timestamp",
 			"Gender",
@@ -133,12 +102,6 @@ public class ResultsDownloader : EditorWindow {
 			"During 1 Desire",
 			"During 1 Reasons",
 			"During 1 Comments",
-//			"During 2 Desire",
-//			"During 2 Reasons",
-//			"During 2 Comments",
-//			"During 3 Desire",
-//			"During 3 Reasons",
-//			"During 3 Comments",
 			"After Desire",
 			"After Reasons",
 			"After Comments",
@@ -166,8 +129,6 @@ public class ResultsDownloader : EditorWindow {
 			"Raw Units Selected",
 			"Raw Enemies Selected",
 			"Raw Force Spawns",
-//			"Scenario",
-//			"Preferred Scenario",
 			"Raw Eyes Pos 2D",
 			"Raw Eyes Pos 3D",
 			"Raw Mouse Pos 2D",
@@ -182,8 +143,7 @@ public class ResultsDownloader : EditorWindow {
 			stringBuilder.Append(string.Format("{0};", col));
 		}
 		stringBuilder.AppendLine();
-
-			
+					
 
 		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
 		
@@ -206,7 +166,7 @@ public class ResultsDownloader : EditorWindow {
 						}
 					}
 
-					stringBuilder.Append(Environment.NewLine);
+					stringBuilder.AppendLine();
 				}				
 			}
           	else {

@@ -67,7 +67,7 @@ public class StatsCollector : MonoBehaviour {
 	public static void TakeScreenshot() {
 		string time = System.DateTime.Now.Hour + "-" + System.DateTime.Now.Minute;
 		string date = System.DateTime.Now.Day + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Year + "_" + time;
-		string path = Application.dataPath + "ScreenShots/ScreenShot_" + date + "_" + time + ".png";
+		string path = Application.dataPath + "/ScreenShots/ScreenShot_" + date + "_" + time + ".png";
 		Debug.Log("Saving Screenshot at path: " + path);
 		Application.CaptureScreenshot(path);
 	}

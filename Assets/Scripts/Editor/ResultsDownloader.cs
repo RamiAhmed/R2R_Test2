@@ -119,17 +119,83 @@ public class ResultsDownloader : EditorWindow {
 
 		StringBuilder stringBuilder = new StringBuilder();
 
-		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
+		string[] columns = new string[]{
+			"P id",
+			"Timestamp",
+			"Gender",
+			"Age",
+			"Playing Frequency",
+			"Playing AmounT",
+			"Favourite Genres/Games",
+			"Starting Desire",
+			"Starting Reasons",
+			"Starting Comments",
+			"During 1 Desire",
+			"During 1 Reasons",
+			"During 1 Comments",
+//			"During 2 Desire",
+//			"During 2 Reasons",
+//			"During 2 Comments",
+//			"During 3 Desire",
+//			"During 3 Reasons",
+//			"During 3 Comments",
+			"After Desire",
+			"After Reasons",
+			"After Comments",
+			"Intrusive Questionnaire",
+			"Intrusive Eye tracking",
+			"Intrusive Mouse tracking",
+			"Intrusive Game metrics",
+			"Raw Time Played",
+			"Raw Time Spent",
+			"Raw Wave Count",
+			"Raw Total Tactics Changes",
+			"Raw Tactics Changes",
+			"Raw Target Changes",
+			"Raw Condition Changes",
+			"Raw Gold Spent",
+			"Raw Gold Earned",
+			"Raw Units Died",
+			"Raw Enemies Killed",
+			"Raw Gold Deposit Left",
+			"Raw Units Bought",
+			"Raw Unit Upgrades",
+			"Raw Units Sold",
+			"Raw Units Moved",
+			"Raw Total Selections",
+			"Raw Units Selected",
+			"Raw Enemies Selected",
+			"Raw Force Spawns",
+//			"Scenario",
+//			"Preferred Scenario",
+			"Raw Eyes Pos 2D",
+			"Raw Eyes Pos 3D",
+			"Raw Mouse Pos 2D",
+			"Raw Mouse Pos 3D",
+			"Raw Left Click Pos 2D",
+			"Raw Left Click Pos 3D",
+			"Raw Right Click Pos 2D",
+			"Raw Right Click Pos 3D"
+		};
 
+		foreach (string col in columns) {
+			stringBuilder.Append(string.Format("{0};", col));
+		}
+		stringBuilder.AppendLine();
+
+			
+
+		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
+		
 		int index = 0;
 		foreach (DictionaryEntry entry in dict) {
 			if (entry.Value != null) {
 				IList list = (IList)dict[index.ToString()];
 				index++;
-
+				
 				foreach (object s in list) {
 					IDictionary iDict = (IDictionary)s;
-
+					
 					foreach (DictionaryEntry el in iDict) {
 						if (el.Value != null) {
 							string elStr = el.Value.ToString().Replace(";", "|");
@@ -143,8 +209,9 @@ public class ResultsDownloader : EditorWindow {
 					stringBuilder.Append(Environment.NewLine);
 				}				
 			}
-          	else
+          	else {
 				Debug.Log(string.Format("{0} is null", entry.Key));				 
+			}
 		}
 
 
@@ -166,9 +233,6 @@ public class ResultsDownloader : EditorWindow {
 			Debug.Log("Successfully wrote out to file at: " + filePath);
 		else 
 			Debug.LogError("Failed to write out to file at path: " + filePath);
-
-
 	}
-
 
 }

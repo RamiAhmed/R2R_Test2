@@ -80,7 +80,7 @@ public class DatabaseHandler : MonoBehaviour {
 		string result = "";
 
 		foreach (Vector2 pos in list) {
-			result += String.Format("({0},{1});", pos.x, pos.y);
+			result += String.Format("({0},{1});", pos.x.ToString("F2"), pos.y.ToString("F2"));
 		}
 
 		return result;
@@ -90,14 +90,14 @@ public class DatabaseHandler : MonoBehaviour {
 		string result = "";
 
 		foreach (Vector3 pos in list) {
-			result += String.Format("({0},{1},{2});", pos.x, pos.y, pos.z);
+			result += String.Format("({0},{1},{2});", pos.x.ToString("F2"), pos.y.ToString("F2"), pos.z.ToString("F2"));
 		}
 
 		return result;
 	}
 
 	public void SubmitAllData() {
-		answersForm.AddField("scenario", StatsCollector.Scenario);
+//		answersForm.AddField("scenario", StatsCollector.Scenario);
 		answersForm.AddField("raw_time_played", Mathf.RoundToInt(StatsCollector.TotalTimePlayed));
 		answersForm.AddField("raw_time_spent", Mathf.RoundToInt(StatsCollector.TotalTimeSpent));
 		answersForm.AddField("raw_wave_count", StatsCollector.WaveCount);

@@ -212,18 +212,6 @@ public class QuestionnaireHandler : MonoBehaviour {
 		GUILayout.Box("AFTER", GUILayout.Height(GUIElementHeight));
 
 		buildSection("After");
-
-		/*
-		if (scenarioHandler.LastScenario != ScenarioHandler.ScenarioState.NONE) {
-			string id = "preferred_scenario";
-			if (!selectionDict.ContainsKey(id)) {
-				selectionDict.Add(id, -1);
-			}
-
-			string[] options = new string[]{"With Tactics", "Without Tactics"};
-			selectionDict[id] = addMultipleChoices(id, "Preferred Scenario", options, "Please choose which scenario you preferred.", selectionDict[id]);
-		}
-		*/
 	}
 
 	private void buildSection(string section) {

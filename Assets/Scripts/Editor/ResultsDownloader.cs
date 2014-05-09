@@ -67,7 +67,7 @@ public class ResultsDownloader : EditorWindow {
 		EditorGUILayout.Separator();
 
 		if (resultsHeatmapRef != null) {
-			if (GUILayout.Button(new GUIContent("Cleanup everything", "Press this button to remove Results folder and 3D heatmap objects, as well as cached Result Getter game object"))) {
+			if (GUILayout.Button(new GUIContent("Cleanup everything", "Press this button to permanently delete all the contents of the 'Results' folder and the 3D heatmap objects"))) {
 				resultsHeatmapRef.CleanupAll();
 			}
 		}

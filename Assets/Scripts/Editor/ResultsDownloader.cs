@@ -72,6 +72,12 @@ public class ResultsDownloader : EditorWindow {
 				resultsHeatmapRef.Render3DHeatmaps();
 			}
 		}
+
+		if (resultsHeatmapRef != null) {
+			resultsHeatmapRef.bGenerateMouse3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Mouse Positions"), resultsHeatmapRef.bGenerateMouse3DHeatmap);
+			resultsHeatmapRef.bGenerateEyes3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Gaze Positions"), resultsHeatmapRef.bGenerateEyes3DHeatmap);
+			resultsHeatmapRef.bGenerateClicks3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Click Positions"), resultsHeatmapRef.bGenerateClicks3DHeatmap);
+		}
 	}
 
 

@@ -14,6 +14,10 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 	private WWW resultsWWW;
 
+	public bool bGenerateMouse3DHeatmap = false;
+	public bool bGenerateEyes3DHeatmap = false;
+	public bool bGenerateClicks3DHeatmap = false;
+
 
 
 	public void AddToDict(string key, List<string> value) {
@@ -41,28 +45,32 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		if (HeatmapDict.Count > 0) {
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("3D")) {
-					GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
+					if ((bGenerateMouse3DHeatmap && pair.Key.Contains("Mouse")) ||
+					    (bGenerateEyes3DHeatmap && pair.Key.Contains("Eyes")) ||
+					    (bGenerateClicks3DHeatmap && pair.Key.Contains("Click"))) {
+						GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
 
 
-					if (parent != null) {
-						parent.transform.parent = this.transform;
-						parent.name = pair.Key;
+						if (parent != null) {
+							parent.transform.parent = this.transform;
+							parent.name = pair.Key;
 
-						string color = string.Empty;
-						if (pair.Key.Contains("Mouse"))
-							color = "Red";
-						else if (pair.Key.Contains("Eyes"))
-							color = "Blue";
-						else if (pair.Key.Contains("Right"))
-							color = "LightGreen";
-						else if (pair.Key.Contains("Left"))
-							color = "DarkGreen";
+							string color = string.Empty;
+							if (pair.Key.Contains("Mouse"))
+								color = "Red";
+							else if (pair.Key.Contains("Eyes"))
+								color = "Blue";
+							else if (pair.Key.Contains("Right"))
+								color = "LightGreen";
+							else if (pair.Key.Contains("Left"))
+								color = "DarkGreen";
 
-						renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color);
-					}
-					else {
-						Debug.LogError("Could not instantiate heatmap parent");
-						break;
+							renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color);
+						}
+						else {
+							Debug.LogError("Could not instantiate heatmap parent");
+							break;
+						}
 					}
 				}
 			}

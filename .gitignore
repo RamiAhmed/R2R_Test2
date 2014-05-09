@@ -6,12 +6,12 @@
 # … you MUST convert Unity to using Metafiles *before* you start using this
 #  .gitignore file, or you WILL lose data!
 #
- 
+
 # OS X only:
 .DS_Store
 *.swp
 *.Trashes
- 
+
 # All platforms:
 Library
 Temp
@@ -23,3 +23,4 @@ Temp
 
 Build/
 ScreenShots/
+Results/

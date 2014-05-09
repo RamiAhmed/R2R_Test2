@@ -7,17 +7,38 @@ using System.Collections;
 using System.Collections.Generic;
 using MiniJSON;
 
-[System.Serializable]
+[System.Serializable, ExecuteInEditMode]
 public class ResultsHeatmapGenerator : MonoBehaviour {
 
 	public HeatmapDictionary HeatmapDict = new HeatmapDictionary();
+	
+	public bool bGenerateMouse3DHeatmap = true;
+	public bool bGenerateEyes3DHeatmap = true;
+	public bool bGenerateClicks3DHeatmap = true;
+
+	public bool bGenerateMouse2DHeatmap = true;
+	public bool bGenerateEyes2DHeatmap = true;
+	public bool bGenerateClicks2DHeatmap = true;
+
+	public int Heatmap2DWidth = 1440;
+	public int Heatmap2DHeight = 1024;
+
+	public int Heatmap2DPixelSize = 2;
+	public float Heatmap2DColorMultiplicationFactor = 1.5f;
+
+	public Color[] Heatmap2DColors = new Color[4];
+	private Color transparentColor = new Color(1f, 1f, 1f, 0f);
 
 	private WWW resultsWWW;
 
-	public bool bGenerateMouse3DHeatmap = false;
-	public bool bGenerateEyes3DHeatmap = false;
-	public bool bGenerateClicks3DHeatmap = false;
-
+	void Start() {
+		Heatmap2DColors = new Color[] {
+			new Color(1f, 0f, 0f, 0.2f),
+			new Color(0f, 0f, 1f, 0.2f),
+			new Color(0f, 1f, 0f, 0.2f),
+			new Color(0f, 0.5f, 0f, 0.2f)
+		};
+	}
 
 
 	public void AddToDict(string key, List<string> value) {
@@ -30,7 +51,127 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 	}
 
+	public void Render2DHeatmaps() {
+		bool bRendered = false;
+
+		if (HeatmapDict.Count > 0) {
+
+			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
+				if (pair.Key.Contains("2D")) {
+					if ((bGenerateMouse2DHeatmap && pair.Key.Contains("Mouse")) ||
+					    (bGenerateEyes2DHeatmap && pair.Key.Contains("Eyes")) ||
+					    (bGenerateClicks2DHeatmap && pair.Key.Contains("Click"))) {
+
+						Color pixelColor = Color.white;
+						if (pair.Key.Contains("Mouse"))
+							pixelColor = Heatmap2DColors[0];
+						else if (pair.Key.Contains("Eyes"))
+							pixelColor = Heatmap2DColors[1];
+						else if (pair.Key.Contains("Right")) 
+							pixelColor = Heatmap2DColors[2]; 
+						else if (pair.Key.Contains("Left"))
+							pixelColor = Heatmap2DColors[3];
+
+						byte[] texBytes = render2DHeatmapTexture(convertStringListToVector2(pair.Value), pixelColor);
+						if (texBytes != null) {
+							if (createNew2DHeatmapPNG(texBytes, pair.Key.Replace(":", "_")))
+								bRendered = true;
+						}
+						else {
+							Debug.LogError("2D Heatmap Texture byte array is null");
+						}					
+					}
+				}
+			}
+		}
+
+		if (bRendered) 
+			Debug.Log("Rendered at least one 2D Heatmap succesfully");
+	}
+
+	private bool createNew2DHeatmapPNG(byte[] texBytes, string key) {
+		bool result = false;
+
+		if (texBytes != null && texBytes.Length > 0) {
+			string dirPath = Path.Combine(Application.dataPath, "Results");
+			dirPath = Path.Combine(dirPath, "2D Heatmaps");
+			string filePath = Path.Combine(dirPath, string.Format("{0}.png", key));
+			
+			int i = 2;
+			while (File.Exists(filePath)) {
+				filePath = Path.Combine(dirPath, string.Format("{0}-{1}.png", key, i.ToString()));
+				
+				i++;
+			}
+			
+			if (!Directory.Exists(dirPath)) 
+				Directory.CreateDirectory(dirPath);
+			
+			FileStream file = File.Create(filePath);
+			BinaryWriter bw = new BinaryWriter(file);
+			
+			bw.Write(texBytes);
+			file.Close();
+			bw.Close();
+			
+			if (File.Exists(filePath)) {
+				result = true;
+				Debug.Log("Sucessfully wrote out 2D heatmap to: " + filePath);
+			}
+			else 
+				Debug.LogError("Could not write out 2D heatmap to: " + filePath);
+		}
+
+		return result;
+	}
+	
+	private byte[] render2DHeatmapTexture(List<Vector2> posList, Color pixelColor) {
+		if (posList != null && posList.Count > 0) {
+			Texture2D tex2D = new Texture2D(Heatmap2DWidth, Heatmap2DHeight);
+
+			for (int x = 0; x < tex2D.width; x++) {
+				for (int y = 0; y < tex2D.height; y++) {
+					tex2D.SetPixel(x, y, transparentColor);
+				}
+			}
+			
+			foreach (Vector2 pos in posList) {
+				int x = Mathf.RoundToInt(pos.x);
+				int y = Mathf.RoundToInt(pos.y);
+
+				render2DHeatmapPoint(tex2D, x, y, pixelColor);
+			}
+			
+			tex2D.Apply(false);
+
+			return tex2D.EncodeToPNG();
+		}
+		else {
+			return null;
+		}
+	}
+
+	private void render2DHeatmapPoint(Texture2D tex2D, int x, int y, Color pixelColor) {
+		int pixelSize = Heatmap2DPixelSize;
+		float colorFator = Heatmap2DColorMultiplicationFactor;
+
+		for (int tx = x-pixelSize; tx < x+pixelSize; tx++) {
+			for (int ty = y-pixelSize; ty < y+pixelSize; ty++) {
+				if (tx >= 0 && tx < tex2D.width && ty >= 0 && ty < tex2D.height) {
+					Color oldColor = tex2D.GetPixel(tx, ty);
+					if (oldColor == transparentColor) 
+						tex2D.SetPixel(tx, ty, pixelColor);
+					else 
+						tex2D.SetPixel(tx, ty, oldColor * colorFator);
+				}
+			}
+		}
+	}
+	
+	
 	public void Render3DHeatmaps() {
+		bool bRendered = false;
+
 		if (this.transform.childCount > 0) {
 			while (this.transform.childCount > 0) {
 				Transform child = this.transform.GetChild(0);
@@ -65,7 +206,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							else if (pair.Key.Contains("Left"))
 								color = "DarkGreen";
 
-							renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color);
+							if (renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color))
+								bRendered = true;
 						}
 						else {
 							Debug.LogError("Could not instantiate heatmap parent");
@@ -74,26 +216,35 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					}
 				}
 			}
-
-			Debug.Log("Rendering 3D mouse position heatmap");
 		}
 		else {
 			Debug.LogError("Heatmap dictionary has not been populated");
 		}
+
+		if (bRendered) 
+			Debug.Log("Rendered at least one 3D Heatmap succesfully");
 	}
 
-	private void renderHeatmapList(List<Vector3> list, Transform parent, string color) {
+	private bool renderHeatmapList(List<Vector3> list, Transform parent, string color) {
+		bool result = false;
 		if (list == null || list.Count <= 0) {
 			Debug.LogError("3D Heatmap list is null or has length 0");
 		}
 		else {
 			foreach (Vector3 pos in list) {
 				createHeatmapPoint(parent, pos, color);
+
+				if (!result)
+					result = true;
 			}
 		}
+
+		return result;
 	}
 
-	private void createHeatmapPoint(Transform parent, Vector3 pos, string color) {
+	private bool createHeatmapPoint(Transform parent, Vector3 pos, string color) {
+		bool result = false;
+
 		UnityEngine.Object heatmapObj = Resources.Load("EditorPrefabs/HeatmapPoint" + color);
 		if (heatmapObj != null) {
 			GameObject heatmapGO = Instantiate(heatmapObj) as GameObject;
@@ -101,6 +252,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 				heatmapGO.transform.position = pos;
 				heatmapGO.transform.parent = parent;
 				//Debug.Log("Created 3D heatmap game object at: " + pos.ToString());
+
+				result = true;
 			}
 			else {
 				Debug.LogError("Could not instantiate 3D heatmap object as game object");
@@ -109,6 +262,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		else {
 			Debug.LogError("Could not load 3D heatmap object from resources");
 		}
+
+		return result;
 	}
 
 	private List<Vector3> convertStringListToVector3(List<string> list) {
@@ -151,23 +306,37 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		List<Vector2> newList = new List<Vector2>();
 
 		foreach (string strPos in list) {
-			float x,y;
-			string[] strPosSplit = strPos.Split(',');
+			if (!string.IsNullOrEmpty(strPos)) {
+				string cleanStrPos = strPos;
+				
+				cleanStrPos = cleanStrPos.Replace("(", string.Empty);
+				cleanStrPos = cleanStrPos.Replace(")", string.Empty);
+				cleanStrPos = cleanStrPos.Replace(";", string.Empty);
+				
+				float x,y;
+				string[] strPosSplit = cleanStrPos.Split(',');
 
-			bool bx = float.TryParse(strPosSplit[0], out x);
-			bool by = float.TryParse(strPosSplit[1], out y);
+				if (strPosSplit.Length == 2) {
+					bool bx = float.TryParse(strPosSplit[0], out x);
+					bool by = float.TryParse(strPosSplit[1], out y);
 
-			if (!bx || !by) {
-				Debug.LogError(string.Format("Convert string list to vector2 list could not parse. x: {0}, y: {1}", strPosSplit[0], strPosSplit[1]));
-			}
-			else {
-				Vector2 pos = new Vector2(x, y);
-				newList.Add(pos);
+					if (!bx || !by) {
+						Debug.LogError(string.Format("Convert string list to vector2 list could not parse. x: {0}, y: {1}", strPosSplit[0], strPosSplit[1]));
+					}
+					else {
+						Vector2 pos = new Vector2(x, y);
+						newList.Add(pos);
+					}
+				}
+				else {
+					Debug.LogError("Convert string list to vector2 list error. Split string does not have length 2. Length: " + strPosSplit.Length);
+				}
 			}
 		}
 
 		return newList;
 	}
+
 
 
 	public void StartGetResults(string dbURL) {
@@ -307,15 +476,18 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 		
 		
-		string dirPath = Application.dataPath + "/Results/";
-		string filePath = dirPath + "results.csv";
+		//string dirPath = Application.dataPath + "/Results/";
+		//string filePath = dirPath + "results.csv";
+		string dirPath = Path.Combine(Application.dataPath, "Results");
+		string filePath = Path.Combine(dirPath, "results.csv");
 		
 		if (!Directory.Exists(dirPath))
 			Directory.CreateDirectory(dirPath);
 		
 		int i = 2;
 		while (File.Exists(filePath)) {
-			filePath = dirPath + "results" + i.ToString() + ".csv";
+			//filePath = dirPath + "results" + i.ToString() + ".csv";
+			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", i.ToString()));
 			i++;
 		}
 		

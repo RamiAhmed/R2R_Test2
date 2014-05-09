@@ -26,17 +26,29 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public int Heatmap2DPixelSize = 2;
 	public float Heatmap2DColorMultiplicationFactor = 1.5f;
 
+	public float Heatmap3DObjectSize = 1f;
+
 	public Color[] Heatmap2DColors = new Color[4];
+	public Color[] Heatmap3DColors = new Color[4];
 	private Color transparentColor = new Color(1f, 1f, 1f, 0f);
 
 	private WWW resultsWWW;
 
+	private string Heatmaps2DFolder = "2D Heatmaps";
+
 	void Start() {
 		Heatmap2DColors = new Color[] {
 			new Color(1f, 0f, 0f, 0.2f),
-			new Color(0f, 0f, 1f, 0.2f),
-			new Color(0f, 1f, 0f, 0.2f),
-			new Color(0f, 0.5f, 0f, 0.2f)
+			new Color(0f, 0.1f, 1f, 0.2f),
+			new Color(1f, 0.975f, 0f, 0.2f),
+			new Color(0f, 0.54f, 0.04f, 0.2f)
+		};
+
+		Heatmap3DColors = new Color[] {
+			new Color(1f, 0f, 0f, 0.2f),
+			new Color(0f, 0.1f, 1f, 0.2f),
+			new Color(1f, 0.975f, 0f, 0.2f),
+			new Color(0f, 0.54f, 0.04f, 0.2f)
 		};
 	}
 
@@ -48,6 +60,52 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 		else {
 			HeatmapDict.Add(key, value);
+		}
+	}
+
+	public void CleanupAll() {
+		string dirPath = Path.Combine(Application.dataPath, "Results");
+		
+		if (Directory.Exists(dirPath)) {
+			Directory.Delete(dirPath, true);
+			
+			if (!Directory.Exists(dirPath))
+				Debug.Log("Deleted folder contents successfully at: " + dirPath);
+			else
+				Debug.LogError("Could not delete folder at: " + dirPath);
+		}
+		else
+			Debug.LogWarning("No 'Results' folder found, cannot cleanup 2D heatmap");
+
+		Cleanup3DHeatmap();
+	}
+
+	public void Cleanup2DHeatmap() {
+		string dirPath = Path.Combine(Application.dataPath, "Results");
+		dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
+
+		if (Directory.Exists(dirPath)) {
+			Directory.Delete(dirPath, true);
+
+			if (!Directory.Exists(dirPath))
+				Debug.Log("Deleted folder successfully at: " + dirPath);
+			else
+				Debug.LogError("Could not delete folder at: " + dirPath);
+		}
+		else
+			Debug.LogWarning("No 'Results' folder found, cannot cleanup 2D heatmap");
+	}
+
+	public void Cleanup3DHeatmap() {
+		if (this.transform.childCount > 0) {
+			while (this.transform.childCount > 0) {
+				DestroyImmediate(this.transform.GetChild(0).gameObject);
+			}
+
+			Debug.Log("Deleted 3D Heatmap objects successfully");
+		}
+		else {
+			Debug.LogWarning("No heatmap objects found, cannot cleanup 3D heatmap");
 		}
 	}
 
@@ -86,7 +144,11 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 
 		if (bRendered) 
-			Debug.Log("Rendered at least one 2D Heatmap succesfully");
+			Debug.Log("Rendered 2D Heatmap succesfully");
+		else {
+			if (!bGenerateMouse2DHeatmap && !bGenerateEyes2DHeatmap && !bGenerateClicks2DHeatmap)
+				Debug.LogWarning("Please include mouse, gaze and/or clicks to the 2D heatmap");
+		}
 	}
 
 	private bool createNew2DHeatmapPNG(byte[] texBytes, string key) {
@@ -94,7 +156,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 		if (texBytes != null && texBytes.Length > 0) {
 			string dirPath = Path.Combine(Application.dataPath, "Results");
-			dirPath = Path.Combine(dirPath, "2D Heatmaps");
+			dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 			string filePath = Path.Combine(dirPath, string.Format("{0}.png", key));
 			
 			int i = 2;
@@ -196,15 +258,15 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							parent.transform.parent = this.transform;
 							parent.name = pair.Key;
 
-							string color = string.Empty;
+							Color color = Color.white;
 							if (pair.Key.Contains("Mouse"))
-								color = "Red";
+								color = Heatmap3DColors[0];
 							else if (pair.Key.Contains("Eyes"))
-								color = "Blue";
-							else if (pair.Key.Contains("Right"))
-								color = "LightGreen";
+								color = Heatmap3DColors[1];
+							else if (pair.Key.Contains("Right")) 
+								color = Heatmap3DColors[2]; 
 							else if (pair.Key.Contains("Left"))
-								color = "DarkGreen";
+								color = Heatmap3DColors[3];
 
 							if (renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color))
 								bRendered = true;
@@ -222,7 +284,27 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 
 		if (bRendered) 
-			Debug.Log("Rendered at least one 3D Heatmap succesfully");
+			Debug.Log("Rendered 3D Heatmap succesfully");
+		else 
+			if (!bGenerateMouse3DHeatmap && !bGenerateEyes3DHeatmap && !bGenerateClicks3DHeatmap)
+				Debug.LogWarning("Please include mouse, gaze and/or clicks to the 3D heatmap");
+	}
+
+	private bool renderHeatmapList(List<Vector3> list, Transform parent, Color color) {
+		bool result = false;
+		if (list == null || list.Count <= 0) {
+			Debug.LogError("3D Heatmap list is null or has length 0");
+		}
+		else {
+			foreach (Vector3 pos in list) {
+				createHeatmapPoint(parent, pos, color);
+				
+				if (!result)
+					result = true;
+			}
+		}
+		
+		return result;
 	}
 
 	private bool renderHeatmapList(List<Vector3> list, Transform parent, string color) {
@@ -239,6 +321,36 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 		}
 
+		return result;
+	}
+
+	private bool createHeatmapPoint(Transform parent, Vector3 pos, Color color) {
+		bool result = false;
+		
+		UnityEngine.Object heatmapObj = Resources.Load("EditorPrefabs/HeatmapPoint");
+		if (heatmapObj != null) {
+			GameObject heatmapGO = Instantiate(heatmapObj) as GameObject;
+			if (heatmapGO != null) {
+				heatmapGO.transform.position = pos;
+				heatmapGO.transform.parent = parent;
+
+				Material heatmapMat = new Material(heatmapGO.renderer.sharedMaterial);
+				heatmapMat.color = color;
+				heatmapGO.renderer.sharedMaterial = heatmapMat;
+
+				heatmapGO.transform.localScale = Vector3.one * Heatmap3DObjectSize;
+				//Debug.Log("Created 3D heatmap game object at: " + pos.ToString());
+				
+				result = true;
+			}
+			else {
+				Debug.LogError("Could not instantiate 3D heatmap object as game object");
+			}
+		}
+		else {
+			Debug.LogError("Could not load 3D heatmap object from resources");
+		}
+		
 		return result;
 	}
 

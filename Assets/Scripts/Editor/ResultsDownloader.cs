@@ -31,6 +31,8 @@ public class ResultsDownloader : EditorWindow {
 		EditorGUILayout.Separator();
 		EditorGUILayout.Space();
 
+		/**** DOWNLOAD RESULTS ****/
+
 		if (GUILayout.Button(new GUIContent("Download Results", "Press this button to download results from the database located at DatabaseURL"))) {
 
 			GameObject resultsGetterGO = GameObject.FindGameObjectWithTag("ResultsGetter");
@@ -63,6 +65,14 @@ public class ResultsDownloader : EditorWindow {
 		}
 
 		EditorGUILayout.Separator();
+
+		if (resultsHeatmapRef != null) {
+			if (GUILayout.Button(new GUIContent("Cleanup everything", "Press this button to remove Results folder and 3D heatmap objects, as well as cached Result Getter game object"))) {
+				resultsHeatmapRef.CleanupAll();
+			}
+		}
+
+		EditorGUILayout.Separator();
 		EditorGUILayout.Space();
 
 		if (resultsHeatmapRef == null)  {
@@ -72,7 +82,34 @@ public class ResultsDownloader : EditorWindow {
 
 		}
 
-		if (GUILayout.Button(new GUIContent("Generate 3D Heatmaps", "Press this button to generate game objects to serve as 3D heatmap points"))) {
+		/**** 3D HEATMAPS ****/
+
+		if (resultsHeatmapRef != null) {
+			EditorGUILayout.BeginHorizontal();
+				resultsHeatmapRef.bGenerateMouse3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Mouse Positions"), resultsHeatmapRef.bGenerateMouse3DHeatmap);
+				resultsHeatmapRef.bGenerateEyes3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Gaze Positions"), resultsHeatmapRef.bGenerateEyes3DHeatmap);
+				resultsHeatmapRef.bGenerateClicks3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Click Positions"), resultsHeatmapRef.bGenerateClicks3DHeatmap);
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.Separator();
+			
+			if (resultsHeatmapRef.Heatmap3DColors.Length == 4) {
+				EditorGUILayout.BeginHorizontal();
+					resultsHeatmapRef.Heatmap3DColors[0] = EditorGUILayout.ColorField("3D Mouse Color", resultsHeatmapRef.Heatmap3DColors[0]);
+					resultsHeatmapRef.Heatmap3DColors[1] = EditorGUILayout.ColorField("3D Gaze Color", resultsHeatmapRef.Heatmap3DColors[1]);
+					resultsHeatmapRef.Heatmap3DColors[2] = EditorGUILayout.ColorField("3D Right Click Color", resultsHeatmapRef.Heatmap3DColors[2]);
+					resultsHeatmapRef.Heatmap3DColors[3] = EditorGUILayout.ColorField("3D Left Click Color", resultsHeatmapRef.Heatmap3DColors[3]);				
+				EditorGUILayout.EndHorizontal();
+			}
+
+			EditorGUILayout.Separator();
+
+			resultsHeatmapRef.Heatmap3DObjectSize = EditorGUILayout.FloatField("3D Heatmap Object Scale (Size)", resultsHeatmapRef.Heatmap3DObjectSize);
+
+			EditorGUILayout.Separator();
+		}
+
+		if (GUILayout.Button(new GUIContent("Generate 3D Heatmaps", "Press this button to generate game objects to serve as the chosen 3D heatmap points"))) {
 			if (resultsHeatmapRef == null) {
 				Debug.LogError("Could not generate 3D heatmap as results have not been downloaded (could not find results getter game object)");
 			}
@@ -82,24 +119,18 @@ public class ResultsDownloader : EditorWindow {
 		}
 
 		if (resultsHeatmapRef != null) {
-			EditorGUILayout.BeginHorizontal();
-				resultsHeatmapRef.bGenerateMouse3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Mouse Positions"), resultsHeatmapRef.bGenerateMouse3DHeatmap);
-				resultsHeatmapRef.bGenerateEyes3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Gaze Positions"), resultsHeatmapRef.bGenerateEyes3DHeatmap);
-				resultsHeatmapRef.bGenerateClicks3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Click Positions"), resultsHeatmapRef.bGenerateClicks3DHeatmap);
-			EditorGUILayout.EndHorizontal();
+			EditorGUILayout.Separator();
+			
+			if (GUILayout.Button(new GUIContent("Cleanup 3D Heatmaps", "Press this button to delete all 3D heatmap objects permanently"))) {
+				resultsHeatmapRef.Cleanup3DHeatmap();
+			}
 		}
-
+		
 		EditorGUILayout.Separator();
 		EditorGUILayout.Space();
 
-		if (GUILayout.Button(new GUIContent("Generate 2D Heatmap", "Press this button to generate a .png image with the 2D heatmap points"))) {
-			if (resultsHeatmapRef == null) {
-				Debug.LogError("Could not generate 2D heatmap as results have not been downloaded (could not find results getter game object)");
-			}
-			else {
-				resultsHeatmapRef.Render2DHeatmaps();
-			}
-		}
+
+		/**** 2D HEATMAPS ****/
 
 		if (resultsHeatmapRef != null) {
 			
@@ -129,14 +160,31 @@ public class ResultsDownloader : EditorWindow {
 
 			if (resultsHeatmapRef.Heatmap2DColors.Length == 4) {
 				EditorGUILayout.BeginHorizontal();
-
 					resultsHeatmapRef.Heatmap2DColors[0] = EditorGUILayout.ColorField("2D Mouse Color", resultsHeatmapRef.Heatmap2DColors[0]);
-					resultsHeatmapRef.Heatmap2DColors[1] = EditorGUILayout.ColorField("2D Eyes Color", resultsHeatmapRef.Heatmap2DColors[1]);
+					resultsHeatmapRef.Heatmap2DColors[1] = EditorGUILayout.ColorField("2D Gaze Color", resultsHeatmapRef.Heatmap2DColors[1]);
 					resultsHeatmapRef.Heatmap2DColors[2] = EditorGUILayout.ColorField("2D Right Click Color", resultsHeatmapRef.Heatmap2DColors[2]);
 					resultsHeatmapRef.Heatmap2DColors[3] = EditorGUILayout.ColorField("2D Left Click Color", resultsHeatmapRef.Heatmap2DColors[3]);				
 				EditorGUILayout.EndHorizontal();
 			}
 
+			EditorGUILayout.Separator();
+		}
+
+		if (GUILayout.Button(new GUIContent("Generate 2D Heatmaps", "Press this button to generate .png images with the chosen 2D heatmap points"))) {
+			if (resultsHeatmapRef == null) {
+				Debug.LogError("Could not generate 2D heatmap as results have not been downloaded (could not find results getter game object)");
+			}
+			else {
+				resultsHeatmapRef.Render2DHeatmaps();
+			}
+		}
+
+		if (resultsHeatmapRef != null) {
+			EditorGUILayout.Separator();
+
+			if (GUILayout.Button(new GUIContent("Cleanup 2D Heatmaps", "Press this button to delete the 2D heatmaps folder permanently, including all 2D heatmaps within"))) {
+				resultsHeatmapRef.Cleanup2DHeatmap();
+			}
 		}
 		
 	}

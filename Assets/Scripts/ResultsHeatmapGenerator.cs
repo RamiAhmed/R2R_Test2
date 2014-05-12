@@ -208,8 +208,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 			
 			foreach (Vector2 pos in posList) {
-				int x = Mathf.RoundToInt(pos.x);
-				int y = Mathf.RoundToInt(pos.y);
+				int x = Mathf.RoundToInt((pos.x/1920f) * Heatmap2DWidth);
+				int y = Mathf.RoundToInt((pos.y/1024f) * Heatmap2DHeight);
 				
 				render2DHeatmapPoint(tex2D, x, y, pixelColor);
 			}

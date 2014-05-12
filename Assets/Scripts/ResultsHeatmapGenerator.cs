@@ -67,7 +67,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		string dirPath = Path.Combine(Application.dataPath, "Results");
 		
 		if (Directory.Exists(dirPath)) {
-			Directory.Delete(dirPath, true);
+			try {
+				Directory.Delete(dirPath, true);
+			}
+			catch (System.Exception e) {
+				Debug.LogWarning("CleanupAll() exception: " + e.Message.ToString());
+			}
 			
 			if (!Directory.Exists(dirPath))
 				Debug.Log("Deleted folder contents successfully at: " + dirPath);
@@ -85,7 +90,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 
 		if (Directory.Exists(dirPath)) {
-			Directory.Delete(dirPath, true);
+			try {
+				Directory.Delete(dirPath, true);
+			}
+			catch (System.Exception e) {
+				Debug.LogWarning("Cleanup2D Heatmap error: " + e.Message.ToString());
+			}
 
 			if (!Directory.Exists(dirPath))
 				Debug.Log("Deleted folder successfully at: " + dirPath);

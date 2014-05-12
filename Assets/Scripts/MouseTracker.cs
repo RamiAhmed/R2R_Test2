@@ -26,12 +26,24 @@ public class MouseTracker : MonoBehaviour {
 	public List<Vector3> LeftClickPoints3D = new List<Vector3>();
 	public List<Vector3> RightClickPoints3D = new List<Vector3>();
 
+	public List<Vector2> TAISMousePoints2D = new List<Vector2>();
+	public List<Vector2> TAISEyesPoints2D = new List<Vector2>();
+	public List<Vector2> TAISLeftClickPoints2D = new List<Vector2>();
+	public List<Vector2> TAISRightClickPoints2D = new List<Vector2>();
+	
+	public List<Vector3> TAISMousePoints3D = new List<Vector3>();
+	public List<Vector3> TAISEyesPoints3D = new List<Vector3>();
+	public List<Vector3> TAISLeftClickPoints3D = new List<Vector3>();
+	public List<Vector3> TAISRightClickPoints3D = new List<Vector3>();
 
+	private PlayerController playerRef = null;
 
 	// Use this for initialization
 	void Start () {
 		_gameControllerRef = this.GetComponent<GameController>();
 		eyeClient = GameObject.FindGameObjectWithTag("EyeTribeHandler").GetComponent<EyeTribeClient>();
+
+		playerRef = _gameControllerRef.players[0].GetComponent<PlayerController>();
 	}
 	
 	// Update is called once per frame
@@ -55,6 +67,9 @@ public class MouseTracker : MonoBehaviour {
 				Vector2 clickPos = Input.mousePosition;
 				clickPos.y = Screen.height - clickPos.y;
 
+				if (playerRef.bSelectingTactics)
+					TAISLeftClickPoints2D.Add(clickPos);
+
 				LeftClickPoints2D.Add(clickPos);
 
 				Ray clickRay = playerCamRef.ScreenPointToRay(clickPos);
@@ -66,6 +81,8 @@ public class MouseTracker : MonoBehaviour {
 						break;
 					}
 				}
+				if (playerRef.bSelectingTactics)
+					TAISLeftClickPoints3D.Add(clickPos3D);
 
 				LeftClickPoints3D.Add(clickPos3D);
 			}
@@ -73,6 +90,9 @@ public class MouseTracker : MonoBehaviour {
 			if (Input.GetMouseButtonDown(1)) {
 				Vector2 clickPos = Input.mousePosition;
 				clickPos.y = Screen.height - clickPos.y;
+
+				if (playerRef.bSelectingTactics)
+					TAISRightClickPoints2D.Add(clickPos);
 
 				RightClickPoints2D.Add(clickPos);
 
@@ -85,7 +105,10 @@ public class MouseTracker : MonoBehaviour {
 						break;
 					}
 				}
-				
+
+				if (playerRef.bSelectingTactics)
+					TAISRightClickPoints3D.Add(clickPos3D);
+
 				RightClickPoints3D.Add(clickPos3D);
 			}
 		}
@@ -106,6 +129,10 @@ public class MouseTracker : MonoBehaviour {
 			Vector2 eyesPos = new Vector2(currentGaze.x, currentGaze.y);
 			Vector3 eyesPos2D = new Vector3(eyesPos.x, eyesPos.y, 0f);
 			//GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
+
+			if (playerRef.bSelectingTactics)
+				TAISEyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos2D.y));
+
 			EyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos.y));
 
 			if (playerCamRef != null) {
@@ -119,6 +146,9 @@ public class MouseTracker : MonoBehaviour {
 					}
 				}
 
+				if (playerRef.bSelectingTactics)
+					TAISEyesPoints3D.Add(eyesPos3D);
+
 				EyesPoints3D.Add(eyesPos3D);
 				GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
 			}
@@ -129,6 +159,10 @@ public class MouseTracker : MonoBehaviour {
 		Vector2 mousePos = Input.mousePosition;
 		Vector3 mousePos2D = new Vector3(mousePos.x, mousePos.y, 0f);
 		//GA.API.Design.NewEvent("MousePos2D", mousePos2D);
+
+		if (playerRef.bSelectingTactics)
+			TAISMousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
+
 		MousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
 
 		if (playerCamRef != null) {
@@ -141,6 +175,9 @@ public class MouseTracker : MonoBehaviour {
 					break;
 				}
 			}
+
+			if (playerRef.bSelectingTactics)
+				TAISMousePoints3D.Add(mousePos3D);
 
 			MousePoints3D.Add(mousePos3D);
 			GA.API.Design.NewEvent("MousePos3D", mousePos3D);

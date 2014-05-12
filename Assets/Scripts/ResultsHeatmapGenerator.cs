@@ -596,7 +596,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							int intKey = 0;
 							bool result = int.TryParse(el.Key.ToString(), out intKey);
 							if (result && intKey > 39) {
-								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns);
+								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, el.Key.ToString().Contains("tais"));
 							}
 							else {
 								stringBuilder.Append(elStr);
@@ -640,6 +640,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		if (HeatmapDict.Count > 0) {
 			int row = 0;
 			bool b3D = false;
+			bool bTais = false;
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				int calcRow = 0;
 				bool bParsed = int.TryParse(pair.Key.Substring(0, pair.Key.IndexOf(":")), out calcRow);
@@ -651,6 +652,11 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					
 					if (b3D != pair.Key.Contains("3D")) {
 						b3D = pair.Key.Contains("3D");
+						coordinatesStringBuilder.AppendLine();
+					}
+
+					if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
+						bTais = pair.Key.ToUpper().Contains("TAIS");
 						coordinatesStringBuilder.AppendLine();
 					}
 
@@ -698,10 +704,10 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 		string filePath = Path.Combine(dirPath, "results.csv");
 
-		i = 2;
+		int j = 2;
 		while (File.Exists(filePath)) {
-			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", i.ToString()));
-			i++;
+			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", j.ToString()));
+			j++;
 		}
 		
 		File.WriteAllText(filePath, stringBuilder.ToString());
@@ -713,11 +719,15 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		
 	}
 	
-	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns) {
+	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns, bool bTais) {
 		List<string> coords = new List<string>();
 		coords.AddRange((list.Replace(";", "|").Split('|')));
 		
 		string key = string.Format("{0}:{1}", rowIndex.ToString(), columns[index]);
+
+		if (bTais)
+			key = string.Format("{0}-TAIS", key);
+
 		this.AddToDict(key, coords);
 		
 		//Debug.Log(string.Format("adding to heatmap results ref, key: {0}, value: {1}", key, coords));

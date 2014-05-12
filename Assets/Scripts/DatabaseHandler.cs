@@ -128,6 +128,15 @@ public class DatabaseHandler : MonoBehaviour {
 		string leftClickPos3D = convertListToString(mouseTracker.LeftClickPoints3D);
 		string rightClickPos2D = convertListToString(mouseTracker.RightClickPoints2D);
 		string rightClickPos3D = convertListToString(mouseTracker.RightClickPoints3D);
+
+		string tais_eyesPos2D = convertListToString(mouseTracker.TAISEyesPoints2D);
+		string tais_eyesPos3D = convertListToString(mouseTracker.TAISEyesPoints3D);
+		string tais_mousePos2D = convertListToString(mouseTracker.TAISMousePoints2D);
+		string tais_mousePos3D = convertListToString(mouseTracker.TAISMousePoints3D);
+		string tais_leftClickPos2D = convertListToString(mouseTracker.TAISLeftClickPoints2D);
+		string tais_leftClickPos3D = convertListToString(mouseTracker.TAISLeftClickPoints3D);
+		string tais_rightClickPos2D = convertListToString(mouseTracker.TAISRightClickPoints2D);
+		string tais_rightClickPos3D = convertListToString(mouseTracker.TAISRightClickPoints3D);
 	
 
 		answersForm.AddField("raw_eyes_pos_2D", eyesPos2D);
@@ -138,6 +147,15 @@ public class DatabaseHandler : MonoBehaviour {
 		answersForm.AddField("raw_lclick_pos_3D", leftClickPos3D);
 		answersForm.AddField("raw_rclick_pos_2D", rightClickPos2D);
 		answersForm.AddField("raw_rclick_pos_3D", rightClickPos3D);
+
+		answersForm.AddField("tais_eyes_pos_2D", tais_eyesPos2D);
+		answersForm.AddField("tais_eyes_pos_3D", tais_eyesPos3D);
+		answersForm.AddField("tais_mouse_pos_2D", tais_mousePos2D);
+		answersForm.AddField("tais_mouse_pos_3D", tais_mousePos3D);
+		answersForm.AddField("tais_lclick_pos_2D", tais_leftClickPos2D);
+		answersForm.AddField("tais_lclick_pos_3D", tais_leftClickPos3D);
+		answersForm.AddField("tais_rclick_pos_2D", tais_rightClickPos2D);
+		answersForm.AddField("tais_rclick_pos_3D", tais_rightClickPos3D);
 
 
 		StatsCollector.TotalTimePlayed = 0;

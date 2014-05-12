@@ -31,7 +31,7 @@ public class TrackerClient : MonoBehaviour {
 										"<SET ID=\"ENABLE_SEND_POG_RIGHT\" STATE=\"1\"/>\r\n";
 	private string _startCalib = "<SET ID=\"CALIBRATE_SHOW\" STATE=\"1\" />\r\n" +
 									"<SET ID=\"CALIBRATE_START\" STATE=\"1\" />\r\n";
-		private string _stopCalib = "<SET ID=\"CALIBRATE_SHOW\" STATE=\"0\" />\r\n" +
+	private string _stopCalib = "<SET ID=\"CALIBRATE_SHOW\" STATE=\"0\" />\r\n" +
 									"<SET ID=\"CALIBRATE_START\" STATE=\"0\" />\r\n";
 	private string _checkCalib = "<GET ID=\"CALIBRATE_SHOW\" />\r\n" +
 									"<GET ID=\"CALIBRATE_START\" />\r\n";

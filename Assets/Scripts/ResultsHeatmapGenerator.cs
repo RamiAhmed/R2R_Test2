@@ -233,19 +233,18 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	
 	public void Render3DHeatmaps() {
 		bool bRendered = false;
-
-		if (this.transform.childCount > 0) {
-			while (this.transform.childCount > 0) {
-				Transform child = this.transform.GetChild(0);
-				if (child.transform.childCount > 0) {
-					DestroyImmediate(child.transform.GetChild(0).gameObject);
-				}
-
-				DestroyImmediate(child.gameObject);
-			}
-		}
-
 		if (HeatmapDict.Count > 0) {
+			if (this.transform.childCount > 0) {
+				while (this.transform.childCount > 0) {
+					Transform child = this.transform.GetChild(0);
+					if (child.transform.childCount > 0) {
+						DestroyImmediate(child.transform.GetChild(0).gameObject);
+					}
+
+					DestroyImmediate(child.gameObject);
+				}
+			}
+
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("3D")) {
 					if ((bGenerateMouse3DHeatmap && pair.Key.Contains("Mouse")) ||

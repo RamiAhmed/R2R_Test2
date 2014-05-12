@@ -592,12 +592,14 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					foreach (DictionaryEntry el in iDict) {
 						if (el.Value != null) {
 							string elStr = el.Value.ToString().Replace(";", "|");
-							stringBuilder.Append(elStr);
-							
+
 							int intKey = 0;
 							bool result = int.TryParse(el.Key.ToString(), out intKey);
 							if (result && intKey > 39) {
 								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns);
+							}
+							else {
+								stringBuilder.Append(elStr);
 							}
 						}
 						else {

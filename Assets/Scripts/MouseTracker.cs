@@ -61,7 +61,7 @@ public class MouseTracker : MonoBehaviour {
 				RaycastHit[] hits = Physics.RaycastAll(clickRay);
 				Vector3 clickPos3D = Vector3.zero;
 				foreach (RaycastHit hit in hits) {
-					if (hit.collider.GetType () == typeof(TerrainCollider)) {
+					if (hit.collider.GetType() == typeof(TerrainCollider)) {
 						clickPos3D = new Vector3(hit.point.x, hit.point.y, hit.point.z);
 						break;
 					}
@@ -80,7 +80,7 @@ public class MouseTracker : MonoBehaviour {
 				RaycastHit[] hits = Physics.RaycastAll(clickRay);
 				Vector3 clickPos3D = Vector3.zero;
 				foreach (RaycastHit hit in hits) {
-					if (hit.collider.GetType () == typeof(TerrainCollider)) {
+					if (hit.collider.GetType() == typeof(TerrainCollider)) {
 						clickPos3D = new Vector3(hit.point.x, hit.point.y, hit.point.z);
 						break;
 					}

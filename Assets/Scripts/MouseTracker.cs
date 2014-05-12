@@ -127,7 +127,7 @@ public class MouseTracker : MonoBehaviour {
 
 	private void trackMouse() {
 		Vector2 mousePos = Input.mousePosition;
-		Vector3 mousePos2D = new Vector3(mousePos.x, Screen.height - mousePos.y, 0f);
+		Vector3 mousePos2D = new Vector3(mousePos.x, mousePos.y, 0f);
 		//GA.API.Design.NewEvent("MousePos2D", mousePos2D);
 		MousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
 

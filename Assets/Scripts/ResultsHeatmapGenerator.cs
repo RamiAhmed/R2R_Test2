@@ -239,6 +239,16 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 		}
 	}
+
+	private Transform findInChild(string name) {
+		for (int i = 0; i < this.transform.childCount; i++) {
+			if (this.transform.GetChild(i).name == name) {
+				return this.transform.GetChild(i);
+			}
+		}
+
+		return null;
+	}
 	
 	
 	public void Render3DHeatmaps() {
@@ -260,12 +270,22 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					if ((bGenerateMouse3DHeatmap && pair.Key.Contains("Mouse")) ||
 					    (bGenerateEyes3DHeatmap && pair.Key.Contains("Eyes")) ||
 					    (bGenerateClicks3DHeatmap && pair.Key.Contains("Click"))) {
-						GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
 
+						string name = string.Format("Row {0}", pair.Key.Substring(0, pair.Key.IndexOf(":")));
+
+						GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : null;
+						if (parent == null)
+							parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
 
 						if (parent != null) {
-							parent.transform.parent = this.transform;
-							parent.name = pair.Key;
+							if (parent.name != name) {
+								parent.transform.parent = this.transform;
+								parent.name = name;
+							}
+
+							GameObject subparent = Instantiate(parent) as GameObject;
+							subparent.transform.parent = parent.transform;
+							subparent.name = pair.Key.Substring(pair.Key.IndexOf(":")+1);
 
 							Color color = Color.white;
 							if (pair.Key.Contains("Mouse"))
@@ -277,7 +297,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							else if (pair.Key.Contains("Left"))
 								color = Heatmap3DColors[3];
 
-							if (renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color))
+							if (renderHeatmapList(convertStringListToVector3(pair.Value), subparent.transform, color))
 								bRendered = true;
 						}
 						else {

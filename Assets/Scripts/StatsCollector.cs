@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.IO;
 using System.Collections;
 
 public class StatsCollector : MonoBehaviour {
@@ -28,6 +29,7 @@ public class StatsCollector : MonoBehaviour {
 
 	private GameController _gameController = null;
 	private ScenarioHandler scenarioHandler = null;
+	private static PlayerController _playerRef = null;
 	
 	void Start() {
 		_gameController = this.GetComponent<GameController>();
@@ -36,6 +38,7 @@ public class StatsCollector : MonoBehaviour {
 		}
 
 		scenarioHandler = GameObject.FindGameObjectWithTag("ScenarioHandler").GetComponent<ScenarioHandler>();
+		_playerRef = _gameController.players[0].GetComponent<PlayerController>();
 	}
 
 	void Update() {
@@ -65,11 +68,54 @@ public class StatsCollector : MonoBehaviour {
 	}
 
 	public static void TakeScreenshot() {
-		string time = System.DateTime.Now.Hour + "-" + System.DateTime.Now.Minute;
-		string date = System.DateTime.Now.Day + "-" + System.DateTime.Now.Month + "-" + System.DateTime.Now.Year + "_" + time;
-		string path = Application.dataPath + "/ScreenShots/ScreenShot_" + date + "_" + time + ".png";
+		string path = ScreenShotName();
 		Debug.Log("Saving Screenshot at path: " + path);
-		Application.CaptureScreenshot(path);
+		//Application.CaptureScreenshot(path);
+
+		//if (!File.Exists(path)) {
+			//ScreenshotRoutine();
+		//}
+		Application.CaptureScreenshot(ScreenShotName());
+		//_playerRef.StartCoroutine(ScreenshotRoutine());
+
+
 	}
 
+	private static string ScreenShotName() {
+		return string.Format("{0}/ScreenShots/ScreenShot_{1}.png", 
+		                     Application.dataPath, 
+		                     System.DateTime.Now.ToString("dd-MM-yyyy_HH-mm-ss"));
+	}
+	private static IEnumerator ScreenshotRoutine() {
+		yield return new WaitForEndOfFrame();
+
+//	private static void ScreenshotRoutine() {
+		Camera cam = _playerRef.PlayerCam;
+		if (cam != null) {
+			/*RenderTexture currentRT = RenderTexture.active;
+			
+			RenderTexture.active = cam.targetTexture;
+			cam.Render();
+			Texture2D imageOverview = new Texture2D(cam.targetTexture.width, cam.targetTexture.height, TextureFormat.RGB24, false);
+			imageOverview.ReadPixels(new Rect(0, 0, cam.targetTexture.width, cam.targetTexture.height), 0, 0);
+			imageOverview.Apply();
+			
+			RenderTexture.active = currentRT;	*/
+
+			Texture2D tex = new Texture2D(Screen.width, Screen.height);
+			tex.ReadPixels(new Rect(0,0,Screen.width,Screen.height),0,0);
+			tex.Apply();
+			
+			// Encode texture into PNG
+			//byte[] bytes = imageOverview.EncodeToPNG();
+			byte[] bytes = tex.EncodeToPNG();
+			
+			// save in memory
+			string filename = ScreenShotName();
+			File.WriteAllBytes(filename, bytes);
+		}
+		else {
+			Debug.LogError("Could not find player camera");
+		}
+	}
 }

@@ -57,7 +57,8 @@ public class MouseTracker : MonoBehaviour {
 		if (eyeClient == null) 
 			eyeClient = GameObject.FindGameObjectWithTag("EyeTribeHandler").GetComponent<EyeTribeClient>();
 
-		if (_gameControllerRef.CurrentGameState == GameController.GameState.PLAY && !bForceRenderHeatmap) {
+		if (playerCamRef != null && eyeClient != null &&
+		    _gameControllerRef.CurrentGameState == GameController.GameState.PLAY) {
 
 			if (Time.time - lastMouse > 1f/MouseTrackFrequencyPerSecond) {
 				lastMouse = Time.time;

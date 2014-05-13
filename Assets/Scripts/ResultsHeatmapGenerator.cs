@@ -264,6 +264,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					DestroyImmediate(child.gameObject);
 				}
 			}
+
+			UnityEngine.Object parentPrefab = Resources.Load("EditorPrefabs/HeatmapParent");
+			if (parentPrefab == null) {
+				Debug.LogError("Could not find any parent prefab for 3D heatmap");
+				return;
+			}
 			
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("3D")) {
@@ -273,20 +279,17 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 						
 						string name = string.Format("Row {0}", pair.Key.Substring(0, pair.Key.IndexOf(":")));
 						
-						/*GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : null;
-						if (parent == null)
-							parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
-						*/
-						GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
+						GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : Instantiate(parentPrefab) as GameObject;
+
 						if (parent != null) {
 							if (parent.name != name) {
 								parent.transform.parent = this.transform;
-								parent.name = pair.Key.ToString();//name;
+								parent.name = name;
 							}
-							/*
-							GameObject subparent = Instantiate(parent) as GameObject;
+
+							GameObject subparent = Instantiate(parentPrefab) as GameObject;
 							subparent.transform.parent = parent.transform;
-							subparent.name = pair.Key.ToString();*/
+							subparent.name = pair.Key.ToString();
 							
 							Color color = Color.white;
 							if (pair.Key.Contains("Mouse"))
@@ -298,7 +301,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							else if (pair.Key.Contains("Left"))
 								color = Heatmap3DColors[3];
 							
-							if (renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color))
+							if (renderHeatmapList(convertStringListToVector3(pair.Value), subparent.transform, color))
 								bRendered = true;
 						}
 						else {

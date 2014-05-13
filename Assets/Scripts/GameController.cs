@@ -347,6 +347,9 @@ public class GameController : MonoBehaviour {
 			GameEnded = true;
 			//scenarioHandler.IterateScenario();
 		}
+		else {
+			exitGame();
+		}
 		/*else {
 			//Application.LoadLevel(0);	
 			mouseTracker.bForceRenderHeatmap = true;
@@ -365,6 +368,9 @@ public class GameController : MonoBehaviour {
 			bQuittingGame = true;
 			CurrentGameState = GameState.QUESTIONNAIRE;
 		}
+		else {
+			exitGame();
+		}
 		/*else {
 			mouseTracker.bForceRenderHeatmap = true;
 			menuController.bForceDisableMenu = true;
@@ -379,9 +385,9 @@ public class GameController : MonoBehaviour {
 	private void takeEndScreenshot() {
 		StatsCollector.TakeScreenshot();
 	}
-
+*/
 	private void exitGame() {
 		Application.Quit();	
-	}*/
+	}
 	
 }

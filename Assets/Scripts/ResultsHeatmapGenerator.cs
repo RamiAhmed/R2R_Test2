@@ -605,7 +605,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 							int intKey = 0;
 							bool result = int.TryParse(el.Key.ToString(), out intKey);
-							if (result && intKey > 39) {
+							if (result && intKey > 47) {
 								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, el.Key.ToString().Contains("tais"));
 							}
 							else {

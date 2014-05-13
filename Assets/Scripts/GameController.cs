@@ -347,14 +347,14 @@ public class GameController : MonoBehaviour {
 			GameEnded = true;
 			//scenarioHandler.IterateScenario();
 		}
-		else {
+		/*else {
 			//Application.LoadLevel(0);	
 			mouseTracker.bForceRenderHeatmap = true;
 			menuController.bForceDisableMenu = true;
 			
 			Invoke("takeEndScreenshot", 1f);
 			Invoke("exitGame", 3f);
-		}
+		}*/
 	}
 	
 	public void QuitGame() {
@@ -365,23 +365,23 @@ public class GameController : MonoBehaviour {
 			bQuittingGame = true;
 			CurrentGameState = GameState.QUESTIONNAIRE;
 		}
-		else {
+		/*else {
 			mouseTracker.bForceRenderHeatmap = true;
 			menuController.bForceDisableMenu = true;
 
 			Invoke("takeEndScreenshot", 1f);
 			Invoke("exitGame", 3f);
-		}
+		}*/
 	}
 
 
-
+	/*
 	private void takeEndScreenshot() {
 		StatsCollector.TakeScreenshot();
 	}
 
 	private void exitGame() {
 		Application.Quit();	
-	}
+	}*/
 	
 }

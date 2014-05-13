@@ -543,34 +543,44 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			"Intrusive Eye tracking",
 			"Intrusive Mouse tracking",
 			"Intrusive Game metrics",
-			"Raw Time Played",
-			"Raw Time Spent",
-			"Raw Wave Count",
-			"Raw Total Tactics Changes",
-			"Raw Tactics Changes",
-			"Raw Target Changes",
-			"Raw Condition Changes",
-			"Raw Gold Spent",
-			"Raw Gold Earned",
-			"Raw Units Died",
-			"Raw Enemies Killed",
-			"Raw Gold Deposit Left",
-			"Raw Units Bought",
-			"Raw Unit Upgrades",
-			"Raw Units Sold",
-			"Raw Units Moved",
-			"Raw Total Selections",
-			"Raw Units Selected",
-			"Raw Enemies Selected",
-			"Raw Force Spawns",
-			"Raw Eyes Pos 2D",
-			"Raw Eyes Pos 3D",
-			"Raw Mouse Pos 2D",
-			"Raw Mouse Pos 3D",
-			"Raw Left Click Pos 2D",
-			"Raw Left Click Pos 3D",
-			"Raw Right Click Pos 2D",
-			"Raw Right Click Pos 3D"
+			"Time Played",
+			"Time Spent",
+			"Wave Count",
+			"Total Tactics Changes",
+			"Tactics Changes",
+			"Target Changes",
+			"Condition Changes",
+			"Gold Spent",
+			"Gold Earned",
+			"Units Died",
+			"Enemies Killed",
+			"Gold Deposit Left",
+			"Units Bought",
+			"Unit Upgrades",
+			"Units Sold",
+			"Units Moved",
+			"Total Selections",
+			"Units Selected",
+			"Enemies Selected",
+			"Force Spawns",
+			"Eyes Pos 2D",
+			"Eyes Pos 3D",
+			"Mouse Pos 2D",
+			"Mouse Pos 3D",
+			"Left Click Pos 2D",
+			"Left Click Pos 3D",
+			"Right Click Pos 2D",
+			"Right Click Pos 3D",
+			"TAIS Eyes Pos 2D",
+			"TAIS Eyes Pos 3D",
+			"TAIS Mouse Pos 2D",
+			"TAIS Mouse Pos 3D",
+			"TAIS Left Click Pos 2D",
+			"TAIS Left Click Pos 3D",
+			"TAIS Right Click Pos 2D",
+			"TAIS Right Click Pos 3D",
+			"Fixations List",
+			"Average Pupil Size",
 		};
 		
 		foreach (string col in columns) {
@@ -641,6 +651,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			int row = 0;
 			bool b3D = false;
 			bool bTais = false;
+			string lastKey = "";
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				int calcRow = 0;
 				bool bParsed = int.TryParse(pair.Key.Substring(0, pair.Key.IndexOf(":")), out calcRow);
@@ -648,15 +659,17 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					if (row != calcRow) {
 						coordinatesStringBuilder.AppendLine();
 						row++;
-					}
-					
-					if (b3D != pair.Key.Contains("3D")) {
-						b3D = pair.Key.Contains("3D");
+					}					
+					else if (b3D != pair.Key.ToUpper().Contains("3D")) {
+						b3D = pair.Key.ToUpper().Contains("3D");
 						coordinatesStringBuilder.AppendLine();
 					}
-
-					if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
+					else if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
 						bTais = pair.Key.ToUpper().Contains("TAIS");
+						coordinatesStringBuilder.AppendLine();
+					}
+					else if (lastKey != pair.Key) {
+						lastKey = pair.Key;
 						coordinatesStringBuilder.AppendLine();
 					}
 
@@ -675,8 +688,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 						}
 					}
 					else {
-						string[] splitValue = pair.Value.ToString().Split(';');
-						foreach (string str in splitValue) {
+						foreach (string str in pair.Value) {
 							coordinatesStringBuilder.Append(str + ";");
 						}
 					}
@@ -694,10 +706,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			Directory.CreateDirectory(dirPath);
 
 
+
 		string coordinatesFilePath = Path.Combine(dirPath, "results-coords.csv");
 		int i = 2;
 		while (File.Exists(coordinatesFilePath)) {
 			coordinatesFilePath = Path.Combine(dirPath, string.Format("results-coords-{0}.csv", i.ToString()));
+			i++;
 		}
 
 		File.WriteAllText(coordinatesFilePath, coordinatesStringBuilder.ToString());
@@ -706,6 +720,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			Debug.Log("Succesfully wrote out coordinates to file at: " + coordinatesFilePath);
 		else
 			Debug.LogError("Failed to write out coordinates to file at path: " + coordinatesFilePath);
+
 
 
 		string filePath = Path.Combine(dirPath, "results.csv");

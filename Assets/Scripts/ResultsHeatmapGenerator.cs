@@ -20,7 +20,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public bool bGenerateEyes2DHeatmap = true;
 	public bool bGenerateClicks2DHeatmap = true;
 	
-	public int Heatmap2DWidth = 1440;
+	public int Heatmap2DWidth = 1920;
 	public int Heatmap2DHeight = 1024;
 	
 	public int Heatmap2DPixelSize = 2;
@@ -273,19 +273,20 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 						
 						string name = string.Format("Row {0}", pair.Key.Substring(0, pair.Key.IndexOf(":")));
 						
-						GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : null;
+						/*GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : null;
 						if (parent == null)
 							parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
-						
+						*/
+						GameObject parent = Instantiate(Resources.Load("EditorPrefabs/HeatmapParent")) as GameObject;
 						if (parent != null) {
 							if (parent.name != name) {
 								parent.transform.parent = this.transform;
-								parent.name = name;
+								parent.name = pair.Key.ToString();//name;
 							}
-							
+							/*
 							GameObject subparent = Instantiate(parent) as GameObject;
 							subparent.transform.parent = parent.transform;
-							subparent.name = pair.Key.Substring(pair.Key.IndexOf(":")+1);
+							subparent.name = pair.Key.ToString();*/
 							
 							Color color = Color.white;
 							if (pair.Key.Contains("Mouse"))
@@ -297,7 +298,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							else if (pair.Key.Contains("Left"))
 								color = Heatmap3DColors[3];
 							
-							if (renderHeatmapList(convertStringListToVector3(pair.Value), subparent.transform, color))
+							if (renderHeatmapList(convertStringListToVector3(pair.Value), parent.transform, color))
 								bRendered = true;
 						}
 						else {
@@ -320,23 +321,6 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	private bool renderHeatmapList(List<Vector3> list, Transform parent, Color color) {
-		bool result = false;
-		if (list == null || list.Count <= 0) {
-			Debug.LogError("3D Heatmap list is null or has length 0");
-		}
-		else {
-			foreach (Vector3 pos in list) {
-				createHeatmapPoint(parent, pos, color);
-				
-				if (!result)
-					result = true;
-			}
-		}
-		
-		return result;
-	}
-	
-	private bool renderHeatmapList(List<Vector3> list, Transform parent, string color) {
 		bool result = false;
 		if (list == null || list.Count <= 0) {
 			Debug.LogError("3D Heatmap list is null or has length 0");
@@ -382,30 +366,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		
 		return result;
 	}
-	
-	private bool createHeatmapPoint(Transform parent, Vector3 pos, string color) {
-		bool result = false;
-		
-		UnityEngine.Object heatmapObj = Resources.Load("EditorPrefabs/HeatmapPoint" + color);
-		if (heatmapObj != null) {
-			GameObject heatmapGO = Instantiate(heatmapObj) as GameObject;
-			if (heatmapGO != null) {
-				heatmapGO.transform.position = pos;
-				heatmapGO.transform.parent = parent;
-				//Debug.Log("Created 3D heatmap game object at: " + pos.ToString());
-				
-				result = true;
-			}
-			else {
-				Debug.LogError("Could not instantiate 3D heatmap object as game object");
-			}
-		}
-		else {
-			Debug.LogError("Could not load 3D heatmap object from resources");
-		}
-		
-		return result;
-	}
+
 	
 	private List<Vector3> convertStringListToVector3(List<string> list) {
 		List<Vector3> newList = new List<Vector3>();
@@ -539,10 +500,18 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			"After Desire",
 			"After Reasons",
 			"After Comments",
-			"Intrusive Questionnaire",
-			"Intrusive Eye tracking",
-			"Intrusive Mouse tracking",
-			"Intrusive Game metrics",
+			"Noticed Eye Tracker?",
+			"Influenced by Eye Tracker?",
+			"Annoyed by Eye Tracker?",
+			"Noticed Mouse tracker?",
+			"Influenced by Mouse Tracker?",
+			"Annoyed by Mouse Tracker?",
+			"Noticed Game Metrics?",
+			"Influenced by Game Metrics?",
+			"Annoyed by Game Metrics?",
+			"Notied Questionnaire?",
+			"Influenced by Questionnaire?",
+			"Annoyed by Questionnaire?",
 			"Time Played",
 			"Time Spent",
 			"Wave Count",

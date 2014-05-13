@@ -36,6 +36,9 @@ public class MouseTracker : MonoBehaviour {
 	public List<Vector3> TAISLeftClickPoints3D = new List<Vector3>();
 	public List<Vector3> TAISRightClickPoints3D = new List<Vector3>();
 
+	public List<bool> FixationsList = new List<bool>();
+	public List<float> PupilSizeList = new List<float>();
+
 	private PlayerController playerRef = null;
 
 	// Use this for initialization
@@ -61,6 +64,9 @@ public class MouseTracker : MonoBehaviour {
 
 				trackMouse();
 				trackEyes();
+
+				FixationsList.Add(eyeClient.LastFixated);
+				PupilSizeList.Add(eyeClient.LastPupilSize);
 			}
 
 			if (Input.GetMouseButtonDown(0)) {
@@ -131,9 +137,9 @@ public class MouseTracker : MonoBehaviour {
 			//GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
 
 			if (playerRef.bSelectingTactics)
-				TAISEyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos2D.y));
+				TAISEyesPoints2D.Add(new Vector2(eyesPos2D.x, Screen.height - eyesPos2D.y));
 
-			EyesPoints2D.Add(new Vector2(eyesPos2D.x, eyesPos.y));
+			EyesPoints2D.Add(new Vector2(eyesPos2D.x, Screen.height - eyesPos2D.y));
 
 			if (playerCamRef != null) {
 				Ray eyesRay = playerCamRef.ScreenPointToRay (eyesPos2D);
@@ -150,7 +156,7 @@ public class MouseTracker : MonoBehaviour {
 					TAISEyesPoints3D.Add(eyesPos3D);
 
 				EyesPoints3D.Add(eyesPos3D);
-				GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
+				//GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
 			}
 		}
 	}
@@ -180,7 +186,7 @@ public class MouseTracker : MonoBehaviour {
 				TAISMousePoints3D.Add(mousePos3D);
 
 			MousePoints3D.Add(mousePos3D);
-			GA.API.Design.NewEvent("MousePos3D", mousePos3D);
+			//GA.API.Design.NewEvent("MousePos3D", mousePos3D);
 		}
 	}
 

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using UnityEditor;
+//using UnityEditor;
 using System;
 using System.IO;
 using System.Text;
@@ -672,6 +672,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 						List<Vector3> list = convertStringListToVector3(pair.Value);
 						foreach (Vector3 point in list) {
 							coordinatesStringBuilder.Append(point.ToString() + ";");
+						}
+					}
+					else {
+						string[] splitValue = pair.Value.ToString().Split(';');
+						foreach (string str in splitValue) {
+							coordinatesStringBuilder.Append(str + ";");
 						}
 					}
 				}

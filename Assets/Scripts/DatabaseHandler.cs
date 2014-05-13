@@ -80,7 +80,7 @@ public class DatabaseHandler : MonoBehaviour {
 		string result = "";
 
 		foreach (Vector2 pos in list) {
-			result += String.Format("({0},{1});", pos.x.ToString("F2"), pos.y.ToString("F2"));
+			result += string.Format("({0},{1});", pos.x.ToString("F2"), pos.y.ToString("F2"));
 		}
 
 		return result;
@@ -90,7 +90,25 @@ public class DatabaseHandler : MonoBehaviour {
 		string result = "";
 
 		foreach (Vector3 pos in list) {
-			result += String.Format("({0},{1},{2});", pos.x.ToString("F2"), pos.y.ToString("F2"), pos.z.ToString("F2"));
+			result += string.Format("({0},{1},{2});", pos.x.ToString("F2"), pos.y.ToString("F2"), pos.z.ToString("F2"));
+		}
+
+		return result;
+	}
+
+	private string convertListToString(List<float> list) {
+		string result = "";
+		foreach (float f in list) {
+			result += string.Format("{0};", f.ToString("F2"));
+		}
+
+		return result;
+	}
+
+	private string convertListToString(List<bool> list) {
+		string result = "";
+		foreach (bool b in list) {
+			result += string.Format("{0};", (b ? "1" : "0"));
 		}
 
 		return result;
@@ -156,6 +174,12 @@ public class DatabaseHandler : MonoBehaviour {
 		answersForm.AddField("tais_lclick_pos_3D", tais_leftClickPos3D);
 		answersForm.AddField("tais_rclick_pos_2D", tais_rightClickPos2D);
 		answersForm.AddField("tais_rclick_pos_3D", tais_rightClickPos3D);
+
+		string fixatedList = convertListToString(mouseTracker.FixationsList);
+		string pupilSizeList = convertListToString(mouseTracker.PupilSizeList);
+
+		answersForm.AddField("raw_fixated_list", fixatedList);
+		answersForm.AddField("raw_pupil_sizes", pupilSizeList);
 
 
 		StatsCollector.TotalTimePlayed = 0;

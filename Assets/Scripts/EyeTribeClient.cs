@@ -11,6 +11,9 @@ public class EyeTribeClient : MonoBehaviour {
 
 	public Vector3 gazePosNormalY = new Vector3(Screen.width/2, Screen.height/2, 0);
 	public Vector3 gazePosInvertY = new Vector3(Screen.width/2, Screen.height/2, 0);
+
+	public float LastPupilSize = 0f;
+	public bool LastFixated = false;
 	
 	private ETListener listener;
 	
@@ -43,10 +46,16 @@ public class EyeTribeClient : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-	
-		Vector3 lastGazePoint = listener.lastGazePoint;	
-		gazePosNormalY = lastGazePoint;
-		gazePosInvertY = new Vector3(lastGazePoint.x, Screen.height - lastGazePoint.y, lastGazePoint.z);
-		
+		if (listener != null) {
+			Vector3 lastGazePoint = listener.lastGazePoint;	
+			gazePosNormalY = lastGazePoint;
+			gazePosInvertY = new Vector3(lastGazePoint.x, Screen.height - lastGazePoint.y, lastGazePoint.z);
+
+			LastFixated = listener.LastFixated;
+			LastPupilSize = listener.LastPupilSize;
+		}
+		else {
+			Debug.LogWarning("ETListener is null, cannot listen to eye tracking");
+		}
 	}
 }

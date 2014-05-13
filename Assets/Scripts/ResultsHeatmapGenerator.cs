@@ -556,7 +556,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		};
 		
 		foreach (string col in columns) {
-			stringBuilder.Append(string.Format("{0};", col));
+			if (!col.Contains("2D") && !col.Contains("3D") && !col.Contains("Fixations") && !col.Contains("Pupil"))
+				stringBuilder.Append(string.Format("{0};", col));
 		}
 		stringBuilder.AppendLine();
 		
@@ -572,21 +573,23 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					IDictionary iDict = (IDictionary)s;
 					
 					foreach (DictionaryEntry el in iDict) {
+						string key = el.Key.ToString();
 						if (el.Value != null) {
 							string elStr = el.Value.ToString().Replace(";", "|");
 
 							int intKey = 0;
-							bool result = int.TryParse(el.Key.ToString(), out intKey);
+							bool result = int.TryParse(key, out intKey);
 							if (result && intKey > 47) {
-								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, el.Key.ToString().Contains("tais"));
+								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
 							}
 							else {
 								stringBuilder.Append(elStr);
 							}
 						}
-						else {
-							stringBuilder.Append("NaN");
-						}
+						//else {
+						//	if (!key.Contains("2D") && !key.Contains("3D") && !key.Contains("Fixations") && !key.Contains("Pupil"))
+						//		stringBuilder.Append("NaN");
+						//}
 						
 						stringBuilder.Append(";");
 					}

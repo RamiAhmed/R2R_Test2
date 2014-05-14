@@ -4,10 +4,6 @@ using System.Collections.Generic;
 
 public class MouseTracker : MonoBehaviour {
 
-	public Texture2D EyesHeatmapImage = null;
-	public Texture2D HeatmapImage = null;
-	public bool bForceRenderHeatmap = false;
-
 	public float MouseTrackFrequencyPerSecond = 4f;
 	private float lastMouse = 0f;
 
@@ -121,12 +117,6 @@ public class MouseTracker : MonoBehaviour {
 		}
 	}
 
-	void OnGUI() {
-		if (Input.GetKey(KeyCode.F4) || bForceRenderHeatmap) {
-			render2DHeatmap();
-		}
-	}
-
 	private void trackEyes() {
 		if (eyeClient == null)
 			return;
@@ -135,7 +125,6 @@ public class MouseTracker : MonoBehaviour {
 		if (currentGaze.z > 0) {
 			Vector2 eyesPos = new Vector2(currentGaze.x, currentGaze.y);
 			Vector3 eyesPos2D = new Vector3(eyesPos.x, eyesPos.y, 0f);
-			//GA.API.Design.NewEvent("EyesPos2D", eyesPos2D);
 
 			if (playerRef.bSelectingTactics)
 				TAISEyesPoints2D.Add(new Vector2(eyesPos2D.x, Screen.height - eyesPos2D.y));
@@ -157,7 +146,6 @@ public class MouseTracker : MonoBehaviour {
 					TAISEyesPoints3D.Add(eyesPos3D);
 
 				EyesPoints3D.Add(eyesPos3D);
-				//GA.API.Design.NewEvent("EyesPos3D", eyesPos3D);
 			}
 		}
 	}
@@ -165,7 +153,6 @@ public class MouseTracker : MonoBehaviour {
 	private void trackMouse() {
 		Vector2 mousePos = Input.mousePosition;
 		Vector3 mousePos2D = new Vector3(mousePos.x, mousePos.y, 0f);
-		//GA.API.Design.NewEvent("MousePos2D", mousePos2D);
 
 		if (playerRef.bSelectingTactics)
 			TAISMousePoints2D.Add(new Vector2(mousePos2D.x, mousePos2D.y));
@@ -187,31 +174,6 @@ public class MouseTracker : MonoBehaviour {
 				TAISMousePoints3D.Add(mousePos3D);
 
 			MousePoints3D.Add(mousePos3D);
-			//GA.API.Design.NewEvent("MousePos3D", mousePos3D);
-		}
-	}
-
-	private void render2DHeatmap() {
-		if (HeatmapImage != null) {
-			float pointWidth = 20f,
-				  pointHeight = 20f;
-			foreach (Vector2 point in MousePoints2D) {
-				GUI.DrawTexture(new Rect(point.x - (pointWidth/2f), point.y - (pointHeight/2f), pointWidth, pointHeight), HeatmapImage);
-			}
-
-			if (EyesHeatmapImage != null && EyesPoints2D.Count > 0) {
-				foreach (Vector2 point in EyesPoints2D) {
-					GUI.DrawTexture(new Rect(point.x - (pointWidth/2f), point.y - (pointHeight/2f), pointWidth, pointHeight), EyesHeatmapImage);
-				}
-			}
-
-			if (!GUI.skin.box.wordWrap) 
-				GUI.skin.box.wordWrap = true;
-
-			GUI.Box(new Rect(10f, Screen.height/3f - 25f, 100f, 50f), "Rendering Heatmap");
-		}
-		else {
-			Debug.LogWarning("Heatmap Image is null");
 		}
 	}
 

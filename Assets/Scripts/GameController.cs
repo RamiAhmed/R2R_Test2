@@ -124,7 +124,7 @@ public class GameController : MonoBehaviour {
 				Debug.LogWarning("GameController could not find mouse tracker");
 
 
-		dbHandler = this.GetComponent<DatabaseHandler> ();
+		dbHandler = scenarioHandler.gameObject.GetComponent<DatabaseHandler> ();
 	}
 
 	private void stopBuildMusic() {
@@ -189,7 +189,7 @@ public class GameController : MonoBehaviour {
 
 	void Update () {
 		if (bShutDownGame && dbHandler.bHasSentData) {
-			exitGame();
+			shutDownGameNow();
 			return;
 		}
 
@@ -400,6 +400,11 @@ public class GameController : MonoBehaviour {
 	private void exitGame() {
 		//Invoke("shutDownGameNow", 3f);
 		bShutDownGame = true;
+		Debug.Log("exitGame();");
+	}
+
+	private void shutDownGameNow() {
+		Application.Quit();
 	}
 
 	/*private void shutDownGameNow() {

@@ -108,6 +108,11 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 		}
 	}
 
+	public void Clear() {
+		_keys.Clear();
+		_values.Clear();
+	}
+
 	public IEnumerator<KeyValuePair<string, List<string>>> GetEnumerator() {
 		for (int i = 0; i < this.Count; i++) {
 			yield return new KeyValuePair<string, List<string>>(this._keys[i], this.GetValue(_keys[i]));

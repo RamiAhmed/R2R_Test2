@@ -117,6 +117,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		else {
 			Debug.LogWarning("No heatmap objects found, cannot cleanup 3D heatmap");
 		}
+
+		HeatmapDict.Clear();
 	}
 	
 	public void Render2DHeatmaps() {

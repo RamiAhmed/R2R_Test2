@@ -9,36 +9,54 @@ using System.Collections.Generic;
 
 public class EyeTribeClient : MonoBehaviour {
 
-	public Vector3 gazePosNormalY = new Vector3(Screen.width/2, Screen.height/2, 0);
-	public Vector3 gazePosInvertY = new Vector3(Screen.width/2, Screen.height/2, 0);
+	public Vector3 gazePosNormalY = new Vector3(Screen.width/2f, Screen.height/2f, 0f);
+	public Vector3 gazePosInvertY = new Vector3(Screen.width/2f, Screen.height/2f, 0f);
 
 	public float LastPupilSize = 0f;
 	public bool LastFixated = false;
 	
 	private ETListener listener;
+
+	private Rect guiRect = new Rect();
 	
 	// Use this for initialization
 	void Start () {
-		try
-		{
+		try {
 			listener = new ETListener();			
 		}
-		catch( SocketException e )
-		{
-			print(e);
+		catch(SocketException e) {
+			Debug.LogError("EyeTribeClient listener instantiation error: " + e.Message.ToString());
+		}
+
+		float width = 250f,
+		height = 75f;
+		guiRect = new Rect(Screen.width/2f - width/2f, Screen.height/2f - height/2f, width, height);
+	}
+
+	void OnGUI() {
+		if (!listener.bReady) {
+			guiRect = GUI.Window(1, guiRect, showListenerNotReady, "Eye Tracker Not Ready");
+			GUI.BringWindowToFront(1);
+		}
+	}
+
+	private void showListenerNotReady(int windowID) {
+		if (!listener.bReady) {
+			Color origColor = GUI.color;
+			if (GUI.color != Color.red)
+				GUI.color = Color.red;
+			GUI.Box(new Rect(5f, 25f, guiRect.width-10f, guiRect.height-30f), "EyeTribe Eye Tracker is not ready!!");
+			GUI.color = origColor;
 		}
 	}
 	
-	public void startCalibration() {
-	
+	public void startCalibration() {	
 		Debug.Log("Sending Start calibration");
 		
-		try 
-		{
+		try {
 			listener.startCalibration();
 		}
-		catch 
-		{
+		catch {
 			Debug.LogError("startCalibration failed");
 		}
 		

@@ -13,43 +13,41 @@ public class ETListener : IGazeUpdateListener
 	
 	// z value for lastgaze point indicates a valid gaze location is present (0 no, 1 yes);
 	public Vector3 lastGazePoint = new Vector3(0,0,0);
-	
-	public ETListener ()
-	{
+
+	public bool bReady = false;
+
+	public ETListener () {
 		Debug.Log("Launch ET listener");
 		
-		var connectedOk = true;
+		bool connectedOk = true;
 		GazeManager.Instance.Activate(1, GazeManager.ClientMode.Push);
 		GazeManager.Instance.AddGazeListener(this);
 		
-		if (!GazeManager.Instance.IsConnected)
-		{
-			Debug.Log("Eyetracking Server not started");
-			
+		if (!GazeManager.Instance.IsConnected) {
+			Debug.LogWarning("Eyetracking Server not started");
+
 			//Dispatcher.BeginInvoke(new Action(() => MessageBox.Show("EyeTracking Server not started")));
 			connectedOk = false;
 		}
-		else if (!GazeManager.Instance.IsCalibrated)
-		{
-			Debug.Log("User is not calibrated");
+		else if (!GazeManager.Instance.IsCalibrated) {
+			Debug.LogWarning("User is not calibrated");
 			
 			//Dispatcher.BeginInvoke(new Action(() => MessageBox.Show("User is not calibrated")));
 			connectedOk = false;
 		}
-		if (!connectedOk)
-		{
-			Debug.Log("Connection not ready");
-			
-			
-			return;
+
+		if (!connectedOk) {
+			Debug.LogWarning("Connection not ready");	
+		}
+		else {
+			bReady = true;
 		}
 		
 	}
 	
 	#region Undefined methods 
 	
-	public void startCalibration()
-	{
+	public void startCalibration() {
 		//GazeManager.Instance.CalibrationStart();
 	}
 	
@@ -57,20 +55,12 @@ public class ETListener : IGazeUpdateListener
 	#endregion
 	
 	
-	#region Listener methods
+	#region Listener methods	
+	public void OnScreenIndexChanged(int number) {}
 	
-	public void OnScreenIndexChanged(int number)
-	{
-	}
+	public void OnCalibrationStateChanged(bool val) {}
 	
-	public void OnCalibrationStateChanged(bool val)
-	{
-		
-		
-	}
-	
-	public void OnGazeUpdate(GazeData gazeData)
-	{
+	public void OnGazeUpdate(GazeData gazeData) {
 		int x = (int) Math.Round(gazeData.SmoothedCoordinates.X, 0);
 		int y = (int) Math.Round(gazeData.SmoothedCoordinates.Y, 0);
 		

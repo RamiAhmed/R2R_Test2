@@ -387,7 +387,13 @@ public class GameController : MonoBehaviour {
 	}
 */
 	private void exitGame() {
-		Application.Quit();	
+		Invoke("shutDownGameNow", 3f);
 	}
+
+	private void shutDownGameNow() {
+		Application.Quit ();
+	}
+
+
 	
 }

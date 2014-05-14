@@ -8,6 +8,10 @@ public class DatabaseHandler : MonoBehaviour {
 
 	public string getURL = "";
 	public string postURL = "";
+
+	[HideInInspector]
+	public bool bHasSentData = false;
+
 	private WWW www, requestWWW;
 
 	public IDictionary questionsDict = null;
@@ -218,6 +222,7 @@ public class DatabaseHandler : MonoBehaviour {
 		}		
 		else {				
 			Debug.Log("WWW returned text: " + requestWWW.text);	
+			bHasSentData = true;
 			yield return requestWWW.text;
 		}
 	}

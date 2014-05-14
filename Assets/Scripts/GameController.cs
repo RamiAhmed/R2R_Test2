@@ -37,12 +37,15 @@ public class GameController : MonoBehaviour {
 	private Dictionary<string, AudioSource> audioSources;
 
 	public bool bQuittingGame = false;
+	private bool bShutDownGame = false;
 
 	private QuestionnaireHandler qHandler = null;
 
 	private ScenarioHandler scenarioHandler = null;
 
 	private bool bIntroductionShown = false;
+
+	private DatabaseHandler dbHandler = null;
 
 	public enum GameState {
 		INTRODUCTION,
@@ -119,6 +122,9 @@ public class GameController : MonoBehaviour {
 			mouseTracker = this.GetComponentInChildren<MouseTracker>();
 			if (mouseTracker == null)
 				Debug.LogWarning("GameController could not find mouse tracker");
+
+
+		dbHandler = this.GetComponent<DatabaseHandler> ();
 	}
 
 	private void stopBuildMusic() {
@@ -182,6 +188,11 @@ public class GameController : MonoBehaviour {
 	}
 
 	void Update () {
+		if (bShutDownGame && dbHandler.bHasSentData) {
+			exitGame();
+			return;
+		}
+
 		if (CurrentGameState == GameState.PLAY || CurrentGameState == GameState.MENU) {
 			/*if (Input.GetKeyUp(KeyCode.Pause) || Input.GetKeyUp(KeyCode.P)) {
 				if (CurrentGameState == GameState.PAUSED) {
@@ -387,12 +398,14 @@ public class GameController : MonoBehaviour {
 	}
 */
 	private void exitGame() {
-		Invoke("shutDownGameNow", 3f);
+		//Invoke("shutDownGameNow", 3f);
+		bShutDownGame = true;
 	}
 
-	private void shutDownGameNow() {
-		Application.Quit ();
-	}
+	/*private void shutDownGameNow() {
+
+		//Application.Quit ();
+	}*/
 
 
 	

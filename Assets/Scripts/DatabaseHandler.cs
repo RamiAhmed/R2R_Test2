@@ -69,7 +69,12 @@ public class DatabaseHandler : MonoBehaviour {
 						answersForm.AddField(pair.Key, outValue);
 					}
 					else {
-						answersForm.AddField(pair.Key, pair.Value);
+						string value = pair.Value.ToString();
+						if (value.IndexOf("'") >= 0) {
+							value = value.Replace("'", "\"");
+						}
+
+						answersForm.AddField(pair.Key, value);
 					}
 				}
 			}

@@ -21,7 +21,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public bool bGenerateClicks2DHeatmap = true;
 	
 	public int Heatmap2DWidth = 1920;
-	public int Heatmap2DHeight = 1024;
+	public int Heatmap2DHeight = 1080;
 	
 	public int Heatmap2DPixelSize = 2;
 	public float Heatmap2DColorMultiplicationFactor = 1.5f;
@@ -401,7 +401,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					}
 				}
 				else {
-					Debug.LogWarning("Convert string list to vector3 list error. Split string does not have length 3. Length: " + strPosSplit.Length);
+					Debug.LogWarning("Convert string list to vector3 list error. Split string does not have length 3. Length: " + strPosSplit.Length + ", string: " + strPos);
 				}
 			}
 		}
@@ -436,7 +436,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					}
 				}
 				else {
-					Debug.LogError("Convert string list to vector2 list error. Split string does not have length 2. Length: " + strPosSplit.Length);
+					Debug.LogError("Convert string list to vector2 list error. Split string does not have length 2. Length: " + strPosSplit.Length + ", string: " + strPos);
 				}
 			}
 		}

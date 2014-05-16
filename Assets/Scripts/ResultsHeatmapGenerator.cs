@@ -31,10 +31,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public Color[] Heatmap2DColors = new Color[4];
 	public Color[] Heatmap3DColors = new Color[4];
 	private Color transparentColor = new Color(1f, 1f, 1f, 0f);
-	
+
+	private IDictionary cachedResults;
 	private WWW resultsWWW;
 	
 	private string Heatmaps2DFolder = "2D Heatmaps";
+	private string ResultsFolder = "Results";
 	
 	void Start() {
 		Heatmap2DColors = new Color[] {
@@ -64,7 +66,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	public void CleanupAll() {
-		string dirPath = Path.Combine(Application.dataPath, "Results");
+		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
 		
 		if (Directory.Exists(dirPath)) {
 			try {
@@ -75,18 +77,21 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 			
 			if (!Directory.Exists(dirPath))
-				Debug.Log("Deleted folder contents successfully at: " + dirPath);
+				Debug.Log(string.Format("Deleted folder contents successfully at: {0}", dirPath));
 			else
-				Debug.LogError("Could not delete folder at: " + dirPath);
+				Debug.LogError(string.Format("Could not delete folder at: {0}", dirPath));
 		}
 		else
-			Debug.LogWarning("No 'Results' folder found, cannot cleanup 2D heatmap");
+			Debug.LogWarning(string.Format("No folder found at: {0}", dirPath));
 		
 		Cleanup3DHeatmap();
+
+		if (this.cachedResults != null && this.cachedResults.Count > 0)
+			this.cachedResults.Clear();
 	}
 	
 	public void Cleanup2DHeatmap() {
-		string dirPath = Path.Combine(Application.dataPath, "Results");
+		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
 		dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 		
 		if (Directory.Exists(dirPath)) {
@@ -98,12 +103,12 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 			
 			if (!Directory.Exists(dirPath))
-				Debug.Log("Deleted folder successfully at: " + dirPath);
+				Debug.Log(string.Format("Deleted folder contents successfully at: {0}", dirPath));
 			else
-				Debug.LogError("Could not delete folder at: " + dirPath);
+				Debug.LogError(string.Format("Could not delete folder at: {0}", dirPath));
 		}
 		else
-			Debug.LogWarning("No 'Results' folder found, cannot cleanup 2D heatmap");
+			Debug.LogWarning(string.Format("No folder found at: {0}", dirPath));
 	}
 	
 	public void Cleanup3DHeatmap() {
@@ -124,8 +129,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public void Render2DHeatmaps() {
 		bool bRendered = false;
 		
-		if (HeatmapDict.Count > 0) {
-			
+		if (HeatmapDict.Count > 0) {			
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
 				if (pair.Key.Contains("2D")) {
 					if ((bGenerateMouse2DHeatmap && pair.Key.Contains("Mouse")) ||
@@ -167,7 +171,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		bool result = false;
 		
 		if (texBytes != null && texBytes.Length > 0) {
-			string dirPath = Path.Combine(Application.dataPath, "Results");
+			string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
 			dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 			string filePath = Path.Combine(dirPath, string.Format("{0}.png", key));
 			
@@ -211,7 +215,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			
 			foreach (Vector2 pos in posList) {
 				int x = Mathf.RoundToInt((pos.x/1920f) * Heatmap2DWidth);
-				int y = Mathf.RoundToInt((pos.y/1024f) * Heatmap2DHeight);
+				int y = Mathf.RoundToInt((pos.y/1080f) * Heatmap2DHeight);
 				
 				render2DHeatmapPoint(tex2D, x, y, pixelColor);
 			}
@@ -279,8 +283,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					    (bGenerateEyes3DHeatmap && pair.Key.Contains("Eyes")) ||
 					    (bGenerateClicks3DHeatmap && pair.Key.Contains("Click"))) {
 						
-						string name = string.Format("Row {0}", pair.Key.Substring(0, pair.Key.IndexOf(":")));
-						
+						string name = string.Format("Row {0}", pair.Key.Substring(0, pair.Key.IndexOf(":")));						
 						GameObject parent = (findInChild(name) != null) ? findInChild(name).gameObject : Instantiate(parentPrefab) as GameObject;
 
 						if (parent != null) {
@@ -332,10 +335,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 		else {
 			foreach (Vector3 pos in list) {
-				createHeatmapPoint(parent, pos, color);
-				
-				if (!result)
-					result = true;
+				result = createHeatmapPoint(parent, pos, color);
 			}
 		}
 		
@@ -362,11 +362,11 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 				result = true;
 			}
 			else {
-				Debug.LogError("Could not instantiate 3D heatmap object as game object");
+				Debug.LogError("Could not instantiate 3D heatmap prefab as game object");
 			}
 		}
 		else {
-			Debug.LogError("Could not load 3D heatmap object from resources");
+			Debug.LogError("Could not load 3D heatmap prefab from Resources");
 		}
 		
 		return result;
@@ -396,8 +396,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					}
 					else {
 						//Debug.Log(string.Format("adding pos. x: {0}, y: {1}, z: {2}", x, y, z));
-						Vector3 pos = new Vector3(x, y, z);
-						newList.Add(pos);
+						newList.Add(new Vector3(x, y, z));
 					}
 				}
 				else {
@@ -431,8 +430,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 						Debug.LogError(string.Format("Convert string list to vector2 list could not parse. x: {0}, y: {1}", strPosSplit[0], strPosSplit[1]));
 					}
 					else {
-						Vector2 pos = new Vector2(x, y);
-						newList.Add(pos);
+						newList.Add(new Vector2(x, y));
 					}
 				}
 				else {
@@ -454,12 +452,13 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		resultsWWW = new WWW(DatabaseURL);
 		
 		float elapsedTime = 0f;
+		float maxAllowedTime = 30f;
 		
 		while (!resultsWWW.isDone) {
 			elapsedTime += Time.fixedDeltaTime;
 			Debug.Log("elapsedTime: " + elapsedTime);
 			
-			if (elapsedTime >= 10.0f) {
+			if (elapsedTime >= maxAllowedTime) {
 				Debug.LogError("WWW request to URL: " + DatabaseURL + "\n Timed out.");
 				yield break;
 			}
@@ -480,15 +479,249 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		
 		IDictionary dict = (IDictionary)MiniJSON.Json.Deserialize(response);
 		
-		if (dict.Count <= 0) {
+		if (dict == null || dict.Count <= 0) {
 			Debug.LogError("Downloaded and json deserialized response has no elements");
 			yield break;
 		}
-		
-		
+		else {
+			this.cachedResults = dict;
+		}
+	}
+
+	public void GenerateResultsCSV() {
+		if (this.cachedResults != null && this.cachedResults.Count > 0) {
+			generateResultsCSV(this.cachedResults);
+		}
+		else {
+			Debug.LogWarning("Could not generate results CSV because no results have been cached");
+		}
+	}
+
+	private bool generateResultsCSV(IDictionary dict) {
+		bool result = false;
 		StringBuilder stringBuilder = new StringBuilder();
 		
-		string[] columns = new string[] {
+		string[] columns = getDataColumns();
+		
+		foreach (string col in columns) {
+			if (!col.Contains("2D") && !col.Contains("3D") && !col.Contains("Fixations") && !col.Contains("Pupil"))
+				stringBuilder.Append(string.Format("{0};", col));
+		}
+		stringBuilder.AppendLine();
+		
+		
+		int rowIndex = 0;
+		int index = 0;
+		foreach (DictionaryEntry entry in dict) {
+			if (entry.Value != null) {
+				IList list = (IList)dict[index.ToString()];
+				index++;
+				
+				foreach (object s in list) {
+					IDictionary iDict = (IDictionary)s;
+					
+					foreach (DictionaryEntry el in iDict) {
+						string key = el.Key.ToString();
+						if (el.Value != null) {
+							string elStr = el.Value.ToString().Replace(";", "|");
+							
+							int intKey = 0;
+							bool parseResult = int.TryParse(key, out intKey);
+							if (parseResult && intKey > 47) {
+								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
+							}
+							else {
+								stringBuilder.Append(elStr);
+							}
+						}
+						
+						stringBuilder.Append(";");
+					}
+					
+					stringBuilder.AppendLine();
+					rowIndex++;
+				}
+			}
+			else {
+				Debug.Log(string.Format("{0} is null", entry.Key));
+			}
+		}
+
+		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+		
+		if (!Directory.Exists(dirPath))
+			Directory.CreateDirectory(dirPath);
+
+		string filePath = Path.Combine(dirPath, "results.csv");
+		
+		int j = 2;
+		while (File.Exists(filePath)) {
+			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", j.ToString()));
+			j++;
+		}
+		
+		File.WriteAllText(filePath, stringBuilder.ToString());
+		
+		if (File.Exists(filePath)) {
+			Debug.Log("Successfully wrote out to file at: " + filePath);
+			result = true;
+		}
+		else
+			Debug.LogError("Failed to write out to file at path: " + filePath);
+
+		return result;
+	}
+
+	public void GenerateCoordinateResultsCSV() {
+		if (this.cachedResults != null && this.cachedResults.Count > 0) {
+			generateCoordinateResultsCSV(this.cachedResults);
+		}
+		else {
+			Debug.LogWarning("Could not generate coordinate results CSV because no results have been cached");
+		}
+	}
+
+	private bool generateCoordinateResultsCSV(IDictionary dict) {
+		bool result = false;
+		StringBuilder coordinatesStringBuilder = new StringBuilder();
+
+		string[] columns = getDataColumns();
+
+		if (HeatmapDict.Count <= 0) {
+			int rowIndex = 0;
+			int index = 0;
+			foreach (DictionaryEntry entry in dict) {
+				if (entry.Value != null) {
+					IList list = (IList)dict[index.ToString()];
+					index++;
+					
+					foreach (object s in list) {
+						IDictionary iDict = (IDictionary)s;
+						
+						foreach (DictionaryEntry el in iDict) {
+							string key = el.Key.ToString();
+							if (el.Value != null) {								
+								int intKey = 0;
+								bool parseResult = int.TryParse(key, out intKey);
+								if (parseResult && intKey > 47) {
+									addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
+								}
+							}
+
+						}
+
+						rowIndex++;
+					}
+				}
+				else {
+					Debug.Log(string.Format("{0} is null", entry.Key));
+				}
+			}
+		}
+
+		if (HeatmapDict.Count > 0) {
+			int row = 0;
+			bool b3D = false;
+			bool bTais = false;
+			string lastKey = "";
+			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
+				int calcRow = 0;
+				bool bParsed = int.TryParse(pair.Key.Substring(0, pair.Key.IndexOf(":")), out calcRow);
+				if (bParsed) {
+					if (row != calcRow) {
+						coordinatesStringBuilder.AppendLine();
+						row++;
+					}					
+					else if (b3D != pair.Key.ToUpper().Contains("3D")) {
+						b3D = pair.Key.ToUpper().Contains("3D");
+						coordinatesStringBuilder.AppendLine();
+					}
+					else if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
+						bTais = pair.Key.ToUpper().Contains("TAIS");
+						coordinatesStringBuilder.AppendLine();
+					}
+					else if (lastKey != pair.Key) {
+						lastKey = pair.Key;
+						coordinatesStringBuilder.AppendLine();
+					}
+					
+					coordinatesStringBuilder.Append(pair.Key + ";");
+					
+					if (pair.Key.Contains("2D")) {
+						List<Vector2> list = convertStringListToVector2(pair.Value);
+						foreach (Vector2 point in list) {
+							coordinatesStringBuilder.Append(point.ToString() + ";");
+						}
+					}
+					else if (pair.Key.Contains("3D")) {
+						List<Vector3> list = convertStringListToVector3(pair.Value);
+						foreach (Vector3 point in list) {
+							coordinatesStringBuilder.Append(point.ToString() + ";");
+						}
+					}
+					else {
+						foreach (string str in pair.Value) {
+							coordinatesStringBuilder.Append(str + ";");
+						}
+					}
+				}
+				else {
+					Debug.LogError("Could not parse key from: " + pair.Key);
+				}
+			}	
+
+			string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+			
+			if (!Directory.Exists(dirPath))
+				Directory.CreateDirectory(dirPath);
+			
+			
+			
+			string coordinatesFilePath = Path.Combine(dirPath, "results-coords.csv");
+			int i = 2;
+			while (File.Exists(coordinatesFilePath)) {
+				coordinatesFilePath = Path.Combine(dirPath, string.Format("results-coords-{0}.csv", i.ToString()));
+				
+				i++;
+			}
+			
+			File.WriteAllText(coordinatesFilePath, coordinatesStringBuilder.ToString());
+			
+			if (File.Exists(coordinatesFilePath)) {
+				Debug.Log("Succesfully wrote out coordinates to file at: " + coordinatesFilePath);
+				result = true;
+			}
+			else
+				Debug.LogError("Failed to write out coordinates to file at path: " + coordinatesFilePath);
+		}
+		else {
+			Debug.LogWarning("Heatmap Dictionary has not been populated (Count is 0)");
+		}
+
+		return result;
+	}
+
+	
+	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns, bool bTais) {
+		if (index >= 0 && rowIndex >= 0 && !string.IsNullOrEmpty(list) && columns != null && columns.Length > 0) {
+			List<string> coords = new List<string>();
+			coords.AddRange((list.Replace(";", "|").Split('|')));
+			
+			string key = string.Format("{0}:{1}", rowIndex.ToString(), columns[index]);
+
+			if (bTais)
+				key = string.Format("{0}-TAIS", key);
+
+			this.AddToDict(key, coords);
+			//Debug.Log(string.Format("adding to heatmap results ref, key: {0}, value: {1}", key, coords));
+		}
+		else {
+			Debug.LogWarning("Could not add coordinates list to heatmap dict: " + list);
+		}
+	}
+
+	private string[] getDataColumns() {
+		return new string[] {
 			"P id",
 			"Timestamp",
 			"Gender",
@@ -556,178 +789,5 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			"Fixations List",
 			"Average Pupil Size",
 		};
-		
-		foreach (string col in columns) {
-			if (!col.Contains("2D") && !col.Contains("3D") && !col.Contains("Fixations") && !col.Contains("Pupil"))
-				stringBuilder.Append(string.Format("{0};", col));
-		}
-		stringBuilder.AppendLine();
-		
-		
-		int rowIndex = 0;
-		int index = 0;
-		foreach (DictionaryEntry entry in dict) {
-			if (entry.Value != null) {
-				IList list = (IList)dict[index.ToString()];
-				index++;
-				
-				foreach (object s in list) {
-					IDictionary iDict = (IDictionary)s;
-					
-					foreach (DictionaryEntry el in iDict) {
-						string key = el.Key.ToString();
-						if (el.Value != null) {
-							string elStr = el.Value.ToString().Replace(";", "|");
-
-							int intKey = 0;
-							bool result = int.TryParse(key, out intKey);
-							if (result && intKey > 47) {
-								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
-							}
-							else {
-								stringBuilder.Append(elStr);
-							}
-						}
-						//else {
-						//	if (!key.Contains("2D") && !key.Contains("3D") && !key.Contains("Fixations") && !key.Contains("Pupil"))
-						//		stringBuilder.Append("NaN");
-						//}
-						
-						stringBuilder.Append(";");
-					}
-					
-					stringBuilder.AppendLine();
-					rowIndex++;
-				}
-			}
-			else {
-				Debug.Log(string.Format("{0} is null", entry.Key));
-			}
-		}
-		
-		StringBuilder coordinatesStringBuilder = new StringBuilder();
-		/*
-		string[] coordinateColumns = new string[] {
-			"Raw Eyes Pos 2D",
-			"Raw Eyes Pos 3D",
-			"Raw Mouse Pos 2D",
-			"Raw Mouse Pos 3D",
-			"Raw Left Click Pos 2D",
-			"Raw Left Click Pos 3D",
-			"Raw Right Click Pos 2D",
-			"Raw Right Click Pos 3D"
-		};
-		
-		
-		foreach (string col in coordinateColumns) {
-			coordinatesStringBuilder.Append(string.Format("{0};", col));
-		}
-		coordinatesStringBuilder.AppendLine();*/
-		
-		if (HeatmapDict.Count > 0) {
-			int row = 0;
-			bool b3D = false;
-			bool bTais = false;
-			string lastKey = "";
-			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
-				int calcRow = 0;
-				bool bParsed = int.TryParse(pair.Key.Substring(0, pair.Key.IndexOf(":")), out calcRow);
-				if (bParsed) {
-					if (row != calcRow) {
-						coordinatesStringBuilder.AppendLine();
-						row++;
-					}					
-					else if (b3D != pair.Key.ToUpper().Contains("3D")) {
-						b3D = pair.Key.ToUpper().Contains("3D");
-						coordinatesStringBuilder.AppendLine();
-					}
-					else if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
-						bTais = pair.Key.ToUpper().Contains("TAIS");
-						coordinatesStringBuilder.AppendLine();
-					}
-					else if (lastKey != pair.Key) {
-						lastKey = pair.Key;
-						coordinatesStringBuilder.AppendLine();
-					}
-
-					coordinatesStringBuilder.Append(pair.Key + ";");
-
-					if (pair.Key.Contains("2D")) {
-						List<Vector2> list = convertStringListToVector2(pair.Value);
-						foreach (Vector2 point in list) {
-							coordinatesStringBuilder.Append(point.ToString() + ";");
-						}
-					}
-					else if (pair.Key.Contains("3D")) {
-						List<Vector3> list = convertStringListToVector3(pair.Value);
-						foreach (Vector3 point in list) {
-							coordinatesStringBuilder.Append(point.ToString() + ";");
-						}
-					}
-					else {
-						foreach (string str in pair.Value) {
-							coordinatesStringBuilder.Append(str + ";");
-						}
-					}
-				}
-				else {
-					Debug.LogError("Could not parse key from: " + pair.Key);
-				}
-			}			
-		}
-				
-		
-		string dirPath = Path.Combine(Application.dataPath, "Results");
-
-		if (!Directory.Exists(dirPath))
-			Directory.CreateDirectory(dirPath);
-
-
-
-		string coordinatesFilePath = Path.Combine(dirPath, "results-coords.csv");
-		int i = 2;
-		while (File.Exists(coordinatesFilePath)) {
-			coordinatesFilePath = Path.Combine(dirPath, string.Format("results-coords-{0}.csv", i.ToString()));
-			i++;
-		}
-
-		File.WriteAllText(coordinatesFilePath, coordinatesStringBuilder.ToString());
-
-		if (File.Exists(coordinatesFilePath)) 
-			Debug.Log("Succesfully wrote out coordinates to file at: " + coordinatesFilePath);
-		else
-			Debug.LogError("Failed to write out coordinates to file at path: " + coordinatesFilePath);
-
-
-
-		string filePath = Path.Combine(dirPath, "results.csv");
-
-		int j = 2;
-		while (File.Exists(filePath)) {
-			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", j.ToString()));
-			j++;
-		}
-		
-		File.WriteAllText(filePath, stringBuilder.ToString());
-		
-		if (File.Exists(filePath))
-			Debug.Log("Successfully wrote out to file at: " + filePath);
-		else
-			Debug.LogError("Failed to write out to file at path: " + filePath);
-		
-	}
-	
-	private void addToHeatmapList(int index, int rowIndex, string list, string[] columns, bool bTais) {
-		List<string> coords = new List<string>();
-		coords.AddRange((list.Replace(";", "|").Split('|')));
-		
-		string key = string.Format("{0}:{1}", rowIndex.ToString(), columns[index]);
-
-		if (bTais)
-			key = string.Format("{0}-TAIS", key);
-
-		this.AddToDict(key, coords);
-		
-		//Debug.Log(string.Format("adding to heatmap results ref, key: {0}, value: {1}", key, coords));
 	}
 }

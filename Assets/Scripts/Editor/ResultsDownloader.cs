@@ -90,7 +90,19 @@ public class ResultsDownloader : EditorWindow {
 		if (bResultsHeatmapExists) {
 			EditorGUILayout.Separator();
 
-			if (GUILayout.Button(new GUIContent("Cleanup everything", "Press this button to permanently delete all the contents of the 'Results' folder and the 3D heatmap objects"))) {
+			if (GUILayout.Button(new GUIContent("Generate Results File", "Press this button to generate a results.csv file with all questionnaire and game metrics data"))) {
+				resultsHeatmapRef.GenerateResultsCSV();
+			}
+
+			EditorGUILayout.Separator();
+
+			if (GUILayout.Button(new GUIContent("Generate Coordinate Results File", "Press this button to generate a results-coords.csv file with all coordinate data, fixation lists and average pupil sizes"))) {
+				resultsHeatmapRef.GenerateCoordinateResultsCSV();
+			}
+
+			EditorGUILayout.Separator();
+
+			if (GUILayout.Button(new GUIContent("Cleanup Everything", "Press this button to permanently delete all the contents of the 'Results' folder and the 3D heatmap objects"))) {
 				resultsHeatmapRef.CleanupAll();
 			}
 		}

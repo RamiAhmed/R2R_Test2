@@ -75,6 +75,10 @@ public class ResultsDownloader : EditorWindow {
 
 		EditorGUILayout.Space();
 
+		GUILayout.Box("Downloading Results");
+
+		EditorGUILayout.Space();
+
 		GUILayout.Label("Download Test Results from Server");
 		DatabaseURL = EditorGUILayout.TextField("Database URL", DatabaseURL);
 
@@ -88,6 +92,10 @@ public class ResultsDownloader : EditorWindow {
 		}
 
 		if (bResultsHeatmapExists) {
+			EditorGUILayout.Separator();
+
+			GUILayout.Box("Generating CSV files & Cleanup everything");
+
 			EditorGUILayout.Separator();
 
 			if (GUILayout.Button(new GUIContent("Generate Results File", "Press this button to generate a results.csv file with all questionnaire and game metrics data"))) {
@@ -113,6 +121,10 @@ public class ResultsDownloader : EditorWindow {
 		if (bResultsHeatmapExists) {
 			EditorGUILayout.Separator();
 			EditorGUILayout.Space();
+
+			GUILayout.Box("3D Heatmaps");
+
+			EditorGUILayout.Separator();
 
 			EditorGUILayout.BeginHorizontal();
 				resultsHeatmapRef.bGenerateMouse3DHeatmap = EditorGUILayout.ToggleLeft(new GUIContent("Include 3D Mouse Positions"), resultsHeatmapRef.bGenerateMouse3DHeatmap);
@@ -157,6 +169,10 @@ public class ResultsDownloader : EditorWindow {
 
 			EditorGUILayout.Separator();
 			EditorGUILayout.Space();
+
+			GUILayout.Box("2D Heatmaps");
+
+			EditorGUILayout.Separator();
 			
 			EditorGUILayout.BeginHorizontal();
 				resultsHeatmapRef.Heatmap2DWidth = EditorGUILayout.IntSlider("2D Heatmap Width", resultsHeatmapRef.Heatmap2DWidth, 320, 2048);

@@ -35,6 +35,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	[SerializeField]
 	private IDictionary cachedResults;
 
+	private string dataPath = "";
+
 	private WWW resultsWWW;
 	
 	private const string Heatmaps2DFolder = "2D Heatmaps";
@@ -56,6 +58,8 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			new Color(1f, 0.975f, 0f, 0.2f),
 			new Color(0f, 0.54f, 0.04f, 0.2f)
 		};
+
+		dataPath = Directory.GetParent(Application.dataPath).FullName;
 	}
 	
 	
@@ -70,7 +74,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	public void CleanupAll() {
-		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+		string dirPath = Path.Combine(dataPath, ResultsFolder);
 		
 		if (Directory.Exists(dirPath)) {
 			try {
@@ -95,7 +99,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	public void Cleanup2DHeatmap() {
-		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+		string dirPath = Path.Combine(dataPath, ResultsFolder);
 		dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 		
 		if (Directory.Exists(dirPath)) {
@@ -188,7 +192,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		if (texBytes != null && texBytes.Length > 0) {
 			key = key.Replace(":", "_");
 
-			string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+			string dirPath = Path.Combine(dataPath, ResultsFolder);
 			dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 			string filePath = Path.Combine(dirPath, string.Format("{0}.png", key));
 			
@@ -604,7 +608,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			}
 		}
 
-		string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+		string dirPath = Path.Combine(dataPath, ResultsFolder);
 		
 		if (!Directory.Exists(dirPath))
 			Directory.CreateDirectory(dirPath);
@@ -700,7 +704,7 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 				}
 			}	
 
-			string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
+			string dirPath = Path.Combine(dataPath, ResultsFolder);
 			
 			if (!Directory.Exists(dirPath))
 				Directory.CreateDirectory(dirPath);

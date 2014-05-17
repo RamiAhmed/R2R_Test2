@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
-[System.Serializable]
+[Serializable]
 public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>> {
 
 	[SerializeField]
@@ -20,8 +21,6 @@ public class HeatmapDictionary : IEnumerable<KeyValuePair<string, List<string>>>
 
 	public void Add(string key, List<string> list) {
 		if (ContainsKey(key)) {
-			Debug.LogWarning("HeatmapDictionary Add overwriting previously set key: " + key);
-
 			_values.RemoveAt(GetIndex(key));
 			_keys.Remove(key);
 		}

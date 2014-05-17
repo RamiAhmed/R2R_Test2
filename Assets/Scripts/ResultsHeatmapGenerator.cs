@@ -32,11 +32,15 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	public Color[] Heatmap3DColors = new Color[4];
 	private Color transparentColor = new Color(1f, 1f, 1f, 0f);
 
+	[SerializeField]
 	private IDictionary cachedResults;
+
 	private WWW resultsWWW;
 	
-	private string Heatmaps2DFolder = "2D Heatmaps";
-	private string ResultsFolder = "Results";
+	private const string Heatmaps2DFolder = "2D Heatmaps";
+	private const string ResultsFolder = "Results";
+
+	private const int ResultsListsStartIndex = 47;
 	
 	void Start() {
 		Heatmap2DColors = new Color[] {
@@ -127,6 +131,10 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	public void Render2DHeatmaps() {
+		StartCoroutine(render2DHeatmaps());
+	}
+
+	private IEnumerator render2DHeatmaps() {
 		bool bRendered = false;
 		
 		if (HeatmapDict.Count > 0) {			
@@ -145,14 +153,19 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							pixelColor = Heatmap2DColors[2];
 						else if (pair.Key.Contains("Left"))
 							pixelColor = Heatmap2DColors[3];
-						
-						byte[] texBytes = render2DHeatmapTexture(convertStringListToVector2(pair.Value), pixelColor);
-						if (texBytes != null) {
-							if (createNew2DHeatmapPNG(texBytes, pair.Key.Replace(":", "_")))
-								bRendered = true;
+
+						try {
+							byte[] texBytes = render2DHeatmapTexture(convertStringListToVector2(pair.Value), pixelColor);
+							if (texBytes != null) {
+								if (createNew2DHeatmapPNG(texBytes, pair.Key))
+									bRendered = true;
+							}
+							else {
+								Debug.LogError("2D Heatmap Texture byte array is null");
+							}
 						}
-						else {
-							Debug.LogError("2D Heatmap Texture byte array is null");
+						catch (Exception e) {
+							Debug.LogWarning("Render2DHeatmaps error: " + e.Message.ToString());
 						}
 					}
 				}
@@ -165,12 +178,16 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			if (!bGenerateMouse2DHeatmap && !bGenerateEyes2DHeatmap && !bGenerateClicks2DHeatmap)
 				Debug.LogWarning("Please include mouse, gaze and/or clicks to the 2D heatmap");
 		}
+
+		yield return bRendered;
 	}
 	
 	private bool createNew2DHeatmapPNG(byte[] texBytes, string key) {
 		bool result = false;
 		
 		if (texBytes != null && texBytes.Length > 0) {
+			key = key.Replace(":", "_");
+
 			string dirPath = Path.Combine(Application.dataPath, ResultsFolder);
 			dirPath = Path.Combine(dirPath, Heatmaps2DFolder);
 			string filePath = Path.Combine(dirPath, string.Format("{0}.png", key));
@@ -184,13 +201,19 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			
 			if (!Directory.Exists(dirPath))
 				Directory.CreateDirectory(dirPath);
-			
-			FileStream file = File.Create(filePath);
-			BinaryWriter bw = new BinaryWriter(file);
-			
-			bw.Write(texBytes);
-			file.Close();
-			bw.Close();
+
+			try {
+				FileStream file = File.Create(filePath);
+				BinaryWriter bw = new BinaryWriter(file);
+				
+				bw.Write(texBytes);
+
+				file.Close();
+				bw.Close();
+			}
+			catch (Exception e) {
+				Debug.LogWarning("Create new 2D heatmap png error: " + e.Message.ToString());
+			}
 			
 			if (File.Exists(filePath)) {
 				result = true;
@@ -212,11 +235,13 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 					tex2D.SetPixel(x, y, transparentColor);
 				}
 			}
+
+			Vector2 recordedScreenSize = new Vector2(1920f, 1080f);
 			
 			foreach (Vector2 pos in posList) {
-				int x = Mathf.RoundToInt((pos.x/1920f) * Heatmap2DWidth);
-				int y = Mathf.RoundToInt((pos.y/1080f) * Heatmap2DHeight);
-				
+				int x = recordedScreenSize.x != Heatmap2DWidth ? Mathf.RoundToInt((pos.x/recordedScreenSize.x) * Heatmap2DWidth) : Mathf.RoundToInt(pos.x);
+				int y = recordedScreenSize.y != Heatmap2DHeight ? Mathf.RoundToInt((pos.y/recordedScreenSize.y) * Heatmap2DHeight) : Mathf.RoundToInt(pos.y);
+
 				render2DHeatmapPoint(tex2D, x, y, pixelColor);
 			}
 			
@@ -485,6 +510,39 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 		}
 		else {
 			this.cachedResults = dict;
+			Debug.Log("Cached response in dictionary with count: " + dict.Count.ToString());
+			
+			string[] columns = getDataColumns();
+
+			int rowIndex = 0;
+			int index = 0;
+			foreach (DictionaryEntry entry in dict) {
+				if (entry.Value != null) {
+					IList list = (IList)dict[index.ToString()];
+					index++;
+					
+					foreach (object s in list) {
+						IDictionary iDict = (IDictionary)s;
+						
+						foreach (DictionaryEntry el in iDict) {
+							string key = el.Key.ToString();
+							if (el.Value != null) {								
+								int intKey = 0;
+								bool parseResult = int.TryParse(key, out intKey);
+								if (parseResult && intKey > ResultsListsStartIndex) {
+									addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
+								}
+							}
+							
+						}
+						
+						rowIndex++;
+					}
+				}
+				else {
+					Debug.Log(string.Format("{0} is null", entry.Key));
+				}
+			}
 		}
 	}
 
@@ -499,12 +557,13 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 	private bool generateResultsCSV(IDictionary dict) {
 		bool result = false;
+
 		StringBuilder stringBuilder = new StringBuilder();
 		
 		string[] columns = getDataColumns();
 		
 		foreach (string col in columns) {
-			if (!col.Contains("2D") && !col.Contains("3D") && !col.Contains("Fixations") && !col.Contains("Pupil"))
+			if (!col.Contains("2D") && !col.Contains("3D") && !col.Contains("Fixations") && !col.Contains("Pupil") || col.Contains("Comments"))
 				stringBuilder.Append(string.Format("{0};", col));
 		}
 		stringBuilder.AppendLine();
@@ -527,15 +586,13 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 							
 							int intKey = 0;
 							bool parseResult = int.TryParse(key, out intKey);
-							if (parseResult && intKey > 47) {
-								addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
-							}
-							else {
-								stringBuilder.Append(elStr);
+							if (intKey <= ResultsListsStartIndex || !parseResult) {
+								stringBuilder.Append(elStr + ";");
 							}
 						}
-						
-						stringBuilder.Append(";");
+						else {
+							stringBuilder.Append(";");
+						}
 					}
 					
 					stringBuilder.AppendLine();
@@ -559,15 +616,21 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			filePath = Path.Combine(dirPath, string.Format("results-{0}.csv", j.ToString()));
 			j++;
 		}
-		
-		File.WriteAllText(filePath, stringBuilder.ToString());
+
+		try {
+			File.WriteAllText(filePath, stringBuilder.ToString());
+		}
+		catch (System.Exception e) {
+			Debug.LogWarning("Generate results csv file error: " + e.Message.ToString());
+		}
 		
 		if (File.Exists(filePath)) {
 			Debug.Log("Successfully wrote out to file at: " + filePath);
 			result = true;
 		}
-		else
+		else {
 			Debug.LogError("Failed to write out to file at path: " + filePath);
+		}
 
 		return result;
 	}
@@ -583,61 +646,28 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 
 	private bool generateCoordinateResultsCSV(IDictionary dict) {
 		bool result = false;
-		StringBuilder coordinatesStringBuilder = new StringBuilder();
-
-		string[] columns = getDataColumns();
-
-		if (HeatmapDict.Count <= 0) {
-			int rowIndex = 0;
-			int index = 0;
-			foreach (DictionaryEntry entry in dict) {
-				if (entry.Value != null) {
-					IList list = (IList)dict[index.ToString()];
-					index++;
-					
-					foreach (object s in list) {
-						IDictionary iDict = (IDictionary)s;
-						
-						foreach (DictionaryEntry el in iDict) {
-							string key = el.Key.ToString();
-							if (el.Value != null) {								
-								int intKey = 0;
-								bool parseResult = int.TryParse(key, out intKey);
-								if (parseResult && intKey > 47) {
-									addToHeatmapList(intKey, rowIndex, el.Value.ToString(), columns, key.Contains("tais"));
-								}
-							}
-
-						}
-
-						rowIndex++;
-					}
-				}
-				else {
-					Debug.Log(string.Format("{0} is null", entry.Key));
-				}
-			}
-		}
 
 		if (HeatmapDict.Count > 0) {
-			int row = 0;
+			StringBuilder coordinatesStringBuilder = new StringBuilder();
+
+			int row = 1;
 			bool b3D = false;
 			bool bTais = false;
 			string lastKey = "";
 			foreach (KeyValuePair<string, List<string>> pair in HeatmapDict) {
-				int calcRow = 0;
+				int calcRow;
 				bool bParsed = int.TryParse(pair.Key.Substring(0, pair.Key.IndexOf(":")), out calcRow);
 				if (bParsed) {
 					if (row != calcRow) {
 						coordinatesStringBuilder.AppendLine();
 						row++;
 					}					
-					else if (b3D != pair.Key.ToUpper().Contains("3D")) {
-						b3D = pair.Key.ToUpper().Contains("3D");
+					else if (b3D != pair.Key.Contains("3D")) {
+						b3D = pair.Key.Contains("3D");
 						coordinatesStringBuilder.AppendLine();
 					}
-					else if (bTais != pair.Key.ToUpper().Contains("TAIS")) {
-						bTais = pair.Key.ToUpper().Contains("TAIS");
+					else if (bTais != pair.Key.Contains("TAIS")) {
+						bTais = pair.Key.Contains("TAIS");
 						coordinatesStringBuilder.AppendLine();
 					}
 					else if (lastKey != pair.Key) {
@@ -684,15 +714,21 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 				
 				i++;
 			}
-			
-			File.WriteAllText(coordinatesFilePath, coordinatesStringBuilder.ToString());
+
+			try {
+				File.WriteAllText(coordinatesFilePath, coordinatesStringBuilder.ToString());
+			}
+			catch (System.Exception e) {
+				Debug.LogWarning("Generate coordinate results csv file error: " + e.Message.ToString());
+			}
 			
 			if (File.Exists(coordinatesFilePath)) {
 				Debug.Log("Succesfully wrote out coordinates to file at: " + coordinatesFilePath);
 				result = true;
 			}
-			else
+			else {
 				Debug.LogError("Failed to write out coordinates to file at path: " + coordinatesFilePath);
+			}
 		}
 		else {
 			Debug.LogWarning("Heatmap Dictionary has not been populated (Count is 0)");
@@ -738,18 +774,18 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 			"After Desire",
 			"After Reasons",
 			"After Comments",
-			"Noticed Eye Tracker?",
 			"Influenced by Eye Tracker?",
 			"Annoyed by Eye Tracker?",
-			"Noticed Mouse tracker?",
+			"Eye Tracker Comments",
 			"Influenced by Mouse Tracker?",
 			"Annoyed by Mouse Tracker?",
-			"Noticed Game Metrics?",
+			"Mouse Tracker Comments",
 			"Influenced by Game Metrics?",
 			"Annoyed by Game Metrics?",
-			"Notied Questionnaire?",
+			"Game Metrics Comments",
 			"Influenced by Questionnaire?",
 			"Annoyed by Questionnaire?",
+			"Questionnaire Comments",
 			"Time Played",
 			"Time Spent",
 			"Wave Count",

@@ -5,12 +5,6 @@ using System.Collections.Generic;
 public class MouseTracker : MonoBehaviour {
 
 	public float MouseTrackFrequencyPerSecond = 4f;
-	private float lastMouse = 0f;
-
-	private GameController _gameControllerRef = null;
-	private Camera playerCamRef = null;
-
-	private EyeTribeClient eyeClient = null;
 
 	public List<Vector2> MousePoints2D = new List<Vector2>();
 	public List<Vector2> EyesPoints2D = new List<Vector2>();
@@ -35,7 +29,13 @@ public class MouseTracker : MonoBehaviour {
 	public List<bool> FixationsList = new List<bool>();
 	public List<float> PupilSizeList = new List<float>();
 
-	private PlayerController playerRef = null;
+
+	private float lastSampling = 0f;	
+	private GameController _gameControllerRef = null;
+	private Camera playerCamRef = null;
+	private PlayerController playerRef = null;	
+	private EyeTribeClient eyeClient = null;
+
 
 	// Use this for initialization
 	void Start () {
@@ -56,8 +56,9 @@ public class MouseTracker : MonoBehaviour {
 		if (playerCamRef != null && eyeClient != null &&
 		    _gameControllerRef.CurrentGameState == GameController.GameState.PLAY) {
 
-			if (Time.time - lastMouse > 1f/MouseTrackFrequencyPerSecond) {
-				lastMouse = Time.time;
+			float currentTime = Time.time;
+			if (currentTime - lastSampling > 1f/MouseTrackFrequencyPerSecond) {
+				lastSampling = currentTime;
 
 				trackMouse();
 				trackEyes();

@@ -259,17 +259,19 @@ public class ResultsHeatmapGenerator : MonoBehaviour {
 	}
 	
 	private void render2DHeatmapPoint(Texture2D tex2D, int x, int y, Color pixelColor) {
-		int pixelSize = Heatmap2DPixelSize;
-		float colorFator = Heatmap2DColorMultiplicationFactor;
-		
-		for (int tx = x-pixelSize; tx < x+pixelSize; tx++) {
-			for (int ty = y-pixelSize; ty < y+pixelSize; ty++) {
-				if (tx >= 0 && tx < tex2D.width && ty >= 0 && ty < tex2D.height) {
-					Color oldColor = tex2D.GetPixel(tx, ty);
-					if (oldColor == transparentColor)
-						tex2D.SetPixel(tx, ty, pixelColor);
-					else
-						tex2D.SetPixel(tx, ty, oldColor * colorFator);
+		if (tex2D != null) {
+			int pixelSize = Heatmap2DPixelSize;
+			float colorFator = Heatmap2DColorMultiplicationFactor;
+			
+			for (int tx = x-pixelSize; tx < x+pixelSize; tx++) {
+				for (int ty = y-pixelSize; ty < y+pixelSize; ty++) {
+					if (tx >= 0 && tx < tex2D.width && ty >= 0 && ty < tex2D.height) {
+						Color oldColor = tex2D.GetPixel(tx, ty);
+						if (oldColor == transparentColor)
+							tex2D.SetPixel(tx, ty, pixelColor);
+						else
+							tex2D.SetPixel(tx, ty, oldColor * colorFator);
+					}
 				}
 			}
 		}

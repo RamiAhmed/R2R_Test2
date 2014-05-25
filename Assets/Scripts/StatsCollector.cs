@@ -25,8 +25,6 @@ public class StatsCollector : MonoBehaviour {
 		AmountOfEnemySelections = 0,
 		AmountOfForceSpawns = 0;
 
-	public static string Scenario = "";
-
 	private GameController _gameController = null;
 	private ScenarioHandler scenarioHandler = null;
 	private static PlayerController _playerRef = null;
@@ -51,7 +49,7 @@ public class StatsCollector : MonoBehaviour {
 		if (_gameController.players[0].PlayerGold != GoldDepositLeft) {
 			GoldDepositLeft = _gameController.players[0].PlayerGold;
 		}
-		if (scenarioHandler != null && scenarioHandler.CurrentScenario != ScenarioHandler.ScenarioState.NONE) {
+		/*if (scenarioHandler != null && scenarioHandler.CurrentScenario != ScenarioHandler.ScenarioState.NONE) {
 			if (Scenario != scenarioHandler.CurrentScenario.ToString()) {
 				Scenario = scenarioHandler.CurrentScenario.ToString();
 			}
@@ -59,7 +57,7 @@ public class StatsCollector : MonoBehaviour {
 		else {
 			if (Scenario != "TAIS")
 				Scenario = "TAIS";
-		}
+		}*/
 		TotalTimeSpent += Time.deltaTime;
 
 		if (Input.GetKeyDown(KeyCode.Print) || Input.GetKeyDown(KeyCode.SysReq) || Input.GetKeyDown(KeyCode.F10)) {
@@ -70,15 +68,9 @@ public class StatsCollector : MonoBehaviour {
 	public static void TakeScreenshot() {
 		string path = ScreenShotName();
 		Debug.Log("Saving Screenshot at path: " + path);
-		//Application.CaptureScreenshot(path);
-
-		//if (!File.Exists(path)) {
-			//ScreenshotRoutine();
-		//}
-		Application.CaptureScreenshot(ScreenShotName());
+		Application.CaptureScreenshot(path);
+		
 		//_playerRef.StartCoroutine(ScreenshotRoutine());
-
-
 	}
 
 	private static string ScreenShotName() {
@@ -89,7 +81,6 @@ public class StatsCollector : MonoBehaviour {
 	private static IEnumerator ScreenshotRoutine() {
 		yield return new WaitForEndOfFrame();
 
-//	private static void ScreenshotRoutine() {
 		Camera cam = _playerRef.PlayerCam;
 		if (cam != null) {
 			/*RenderTexture currentRT = RenderTexture.active;

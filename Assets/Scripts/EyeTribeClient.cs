@@ -9,8 +9,8 @@ using System.Collections.Generic;
 
 public class EyeTribeClient : MonoBehaviour {
 
-	public Vector3 gazePosNormalY = new Vector3(Screen.width/2f, Screen.height/2f, 0f);
-	public Vector3 gazePosInvertY = new Vector3(Screen.width/2f, Screen.height/2f, 0f);
+	public Vector3 gazePosNormalY = Vector3.zero;
+	public Vector3 gazePosInvertY = Vector3.zero;
 
 	public float LastPupilSize = 0f;
 	public bool LastFixated = false;
@@ -30,7 +30,7 @@ public class EyeTribeClient : MonoBehaviour {
 
 		float width = 250f,
 		height = 75f;
-		guiRect = new Rect(Screen.width/2f - width/2f, Screen.height/2f - height/2f, width, height);
+		guiRect = new Rect(5f, Screen.height/2f - height/2f, width, height);
 	}
 
 	void OnGUI() {
@@ -49,19 +49,7 @@ public class EyeTribeClient : MonoBehaviour {
 			GUI.color = origColor;
 		}
 	}
-	
-	public void startCalibration() {	
-		Debug.Log("Sending Start calibration");
-		
-		try {
-			listener.startCalibration();
-		}
-		catch {
-			Debug.LogError("startCalibration failed");
-		}
-		
-	}
-	
+
 	// Update is called once per frame
 	void Update () {
 		if (listener != null) {
